@@ -1,0 +1,17 @@
+task_groups:
+  - name: QueryBuilder Core Structure & SQL Generation
+    claude_code_subagent: implementer
+    standards:
+      - all
+  - name: Builder & Terminal Methods
+    claude_code_subagent: implementer
+    standards:
+      - all
+  - name: ModelBuilder Component
+    claude_code_subagent: implementer
+    standards:
+      - all
+  - name: Test Review & Integration Testing
+    claude_code_subagent: implementation-verifier
+    standards:
+      - all
