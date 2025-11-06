@@ -1,0 +1,17 @@
+task_groups:
+  - name: ActiveRecord Base Class & Conventions
+    claude_code_subagent: implementer
+    standards:
+      - all
+  - name: Static Finders (where, find, all)
+    claude_code_subagent: implementer
+    standards:
+      - all
+  - name: Instance Methods (save, update, delete, reload) & Dirty Tracking
+    claude_code_subagent: implementer
+    standards:
+      - all
+  - name: Test Review & Integration Testing
+    claude_code_subagent: implementation-verifier
+    standards:
+      - all
