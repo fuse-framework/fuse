@@ -4,7 +4,7 @@
 
 2. [x] Routing & Event System — Route registration with pattern matching (static/params/wildcards), RESTful resource routes, named route generation, event service with interceptor points (onBeforeRequest, onAfterRouting, onBeforeHandler, onAfterHandler, onBeforeRender, onAfterRender) `M`
 
-3. [ ] Cache & View Rendering — Pluggable cache manager with ICacheProvider interface, RAM cache provider implementation, view renderer with layout wrapping, helper method system for views `S`
+3. [x] Cache & View Rendering — Pluggable cache manager with ICacheProvider interface, RAM cache provider implementation, view renderer with layout wrapping, helper method system for views `S`
 
 4. [ ] Query Builder Foundation — Two-layer query builder (QueryBuilder for raw SQL, ModelBuilder for ORM features), hash-based where() with operator structs ({gte:, like:, in:}), orderBy/limit/offset, raw SQL support (whereRaw, selectRaw) `L`
 
