@@ -6,6 +6,9 @@
  * Distinguishes assertion failures from unexpected errors.
  * Continues execution after failures to run all tests.
  *
+ * Supports both unit tests (TestCase) and integration tests (IntegrationTestCase).
+ * Integration tests load full framework stack before transaction begins.
+ *
  * USAGE EXAMPLES:
  *
  * Basic execution:
@@ -44,7 +47,8 @@
  *     }
  *
  * Transaction behavior:
- * - Each test begins transaction before instantiation
+ * - Unit tests: Begin transaction -> instantiate -> setup -> test -> teardown -> rollback
+ * - Integration tests: Instantiate -> init framework -> begin transaction -> setup -> test -> teardown -> rollback
  * - Rollback occurs in finally block after teardown
  * - Rollback happens even on exceptions
  * - Database changes do not persist between tests
@@ -127,13 +131,22 @@ component {
 	/**
 	 * Execute single test method with full lifecycle
 	 *
-	 * Lifecycle:
+	 * Lifecycle for unit tests (TestCase):
 	 * 1. Begin database transaction
 	 * 2. Instantiate test class
 	 * 3. Call setup()
 	 * 4. Call test method
 	 * 5. Call teardown()
 	 * 6. Rollback transaction (in finally block)
+	 *
+	 * Lifecycle for integration tests (IntegrationTestCase):
+	 * 1. Instantiate test class
+	 * 2. Call initFramework() (framework loads outside transaction)
+	 * 3. Begin database transaction
+	 * 4. Call setup()
+	 * 5. Call test method
+	 * 6. Call teardown()
+	 * 7. Rollback transaction (in finally block)
 	 *
 	 * @componentName Component name in dot notation
 	 * @methodName Test method name to execute
@@ -143,18 +156,31 @@ component {
 		var testStartTime = getTickCount();
 		var testInstance = "";
 		var transactionStarted = false;
+		var isIntegrationTest = false;
 
 		try {
-			// Begin database transaction
-			beginTransaction();
-			transactionStarted = true;
-
-			// Instantiate test class with datasource
+			// Instantiate test class to check if it's integration test
 			if (len(variables.datasource)) {
 				testInstance = createObject("component", arguments.componentName).init(variables.datasource);
 			} else {
 				testInstance = createObject("component", arguments.componentName).init();
 			}
+
+			// Detect if this is an integration test
+			isIntegrationTest = isIntegrationTestCase(testInstance);
+
+			// For integration tests, initialize framework BEFORE transaction
+			if (isIntegrationTest) {
+				// Call private initFramework() method on IntegrationTestCase
+				// This loads the framework stack outside the transaction
+				if (structKeyExists(testInstance, "initFramework")) {
+					invoke(testInstance, "initFramework");
+				}
+			}
+
+			// Begin database transaction (for both unit and integration tests)
+			beginTransaction();
+			transactionStarted = true;
 
 			// Execute lifecycle: setup -> test -> teardown
 			testInstance.setup();
@@ -192,6 +218,36 @@ component {
 				rollbackTransaction();
 			}
 		}
+	}
+
+	/**
+	 * Detect if test instance is an IntegrationTestCase
+	 *
+	 * Uses getMetadata() to check component inheritance chain.
+	 * Returns true if component extends IntegrationTestCase.
+	 *
+	 * @testInstance Test component instance
+	 * @return Boolean true if integration test
+	 */
+	private boolean function isIntegrationTestCase(required any testInstance) {
+		var metadata = getMetadata(arguments.testInstance);
+
+		// Walk inheritance chain looking for IntegrationTestCase
+		while (structKeyExists(metadata, "name")) {
+			// Check if this component is IntegrationTestCase
+			if (findNoCase("IntegrationTestCase", metadata.name)) {
+				return true;
+			}
+
+			// Move up inheritance chain
+			if (structKeyExists(metadata, "extends")) {
+				metadata = metadata.extends;
+			} else {
+				break;
+			}
+		}
+
+		return false;
 	}
 
 	/**

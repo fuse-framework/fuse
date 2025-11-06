@@ -20,7 +20,7 @@
 
 10. [x] Test Framework Foundation — TestCase base class with setup/teardown, test runner with discovery and execution, Assertions component with common assert methods, test reporting to console, database transaction rollback between tests `M`
 
-11. [ ] Test Helpers & Integration — Model factories (make/create methods), handler testing helpers for request/response simulation, integration test support, test database setup/teardown automation `S`
+11. [x] Test Helpers & Integration — Model factories (make/create methods), handler testing helpers for request/response simulation, integration test support, test database setup/teardown automation `S`
 
 12. [ ] CLI Generators — FuseCLI entry point for lucli integration, NewCommand for app scaffolding, GenerateCommand for code generation (handler/model/migration/module), template system for code generation with variable interpolation `M`
 

@@ -1,0 +1,25 @@
+task_groups:
+  - name: Factory System Core
+    claude_code_subagent: implementer
+    standards:
+      - all
+  - name: Database Assertion Methods
+    claude_code_subagent: implementer
+    standards:
+      - all
+  - name: Handler Testing Helpers
+    claude_code_subagent: implementer
+    standards:
+      - all
+  - name: Lightweight Mock System
+    claude_code_subagent: implementer
+    standards:
+      - all
+  - name: Integration Test Framework
+    claude_code_subagent: implementer
+    standards:
+      - all
+  - name: Test Coverage Review & Factory Definitions
+    claude_code_subagent: implementation-verifier
+    standards:
+      - all

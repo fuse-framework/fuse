@@ -41,12 +41,6 @@
  *     var user = make("User", {email: "custom@test.com"});
  *     var admin = create("User", {}, ["admin"]);
  *
- * Using mocks:
- *     var mockService = mock("app.services.EmailService");
- *     stub(mockService, "send", true);
- *     mockService.send();
- *     verify(mockService, "send", 1);
- *
  * Using assertions (mixed in from Assertions.cfc):
  *     assertEqual(expected, actual);
  *     assertNotEqual(expected, actual);
@@ -106,9 +100,6 @@ component {
 
 		// Mix in handler testing helpers
 		mixinHandlerHelpers();
-
-		// Mix in mock helpers
-		mixinMockHelpers();
 
 		return this;
 	}
@@ -320,8 +311,8 @@ component {
 
 			// Find matching route
 			var routeMatch = router.findRoute(
-				arguments.request.simulated_cgi.path_info,
-				arguments.request.simulated_cgi.request_method
+				arguments.request.cgi.path_info,
+				arguments.request.cgi.request_method
 			);
 
 			if (!routeMatch.matched) {
@@ -345,8 +336,8 @@ component {
 
 			// Execute handler method with params
 			var params = routeMatch.params;
-			structAppend(params, arguments.request.simulated_url, false);
-			structAppend(params, arguments.request.simulated_form, false);
+			structAppend(params, arguments.request.url, false);
+			structAppend(params, arguments.request.form, false);
 
 			try {
 				var handlerResult = invoke(handler, methodName, {params: params, request: arguments.request});
@@ -362,37 +353,6 @@ component {
 		// Expose to this scope as well
 		this.makeRequest = variables.makeRequest;
 		this.handle = variables.handle;
-	}
-
-	/**
-	 * Mix in mock helper methods
-	 *
-	 * Stores MockBuilder instance and provides mock(), stub(), and verify()
-	 * methods for component mocking in tests.
-	 */
-	private void function mixinMockHelpers() {
-		// Store mock builder instance for delegation
-		variables._mockBuilder = new fuse.testing.MockBuilder();
-
-		// Create delegation method for mock creation
-		variables.mock = function(required string componentPath) {
-			return variables._mockBuilder.mock(argumentCollection=arguments);
-		};
-
-		// Create delegation method for stub configuration
-		variables.stub = function(required any mockInstance, required string methodName, any returnValue) {
-			variables._mockBuilder.stub(argumentCollection=arguments);
-		};
-
-		// Create delegation method for call verification
-		variables.verify = function(required any mockInstance, required string methodName, required any times) {
-			variables._mockBuilder.verify(argumentCollection=arguments);
-		};
-
-		// Expose to this scope as well
-		this.mock = variables.mock;
-		this.stub = variables.stub;
-		this.verify = variables.verify;
 	}
 
 }

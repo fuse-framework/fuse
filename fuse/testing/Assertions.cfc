@@ -42,10 +42,19 @@
  * Numeric comparisons:
  *     assertGreaterThan(0, cart.total);
  *     assertLessThan(100, discount);
+ *
+ * Database assertions:
+ *     assertDatabaseHas("users", {email: "test@example.com"});
+ *     assertDatabaseMissing("users", {email: "deleted@example.com"});
+ *     assertDatabaseCount("users", 10);
  */
 component {
 
-	public function init() {
+	public function init(string datasource = "") {
+		// Store datasource for database assertions
+		if (len(arguments.datasource)) {
+			variables.datasource = arguments.datasource;
+		}
 		return this;
 	}
 
@@ -365,6 +374,92 @@ component {
 		}
 	}
 
+	/**
+	 * Assert database table has record matching attributes
+	 *
+	 * @table Table name to query
+	 * @attributes Struct of column/value pairs to match
+	 * @message Optional custom failure message
+	 */
+	public void function assertDatabaseHas(required string table, required struct attributes, string message = "") {
+		if (!structKeyExists(variables, "datasource")) {
+			throw(
+				type = "MissingDatasourceException",
+				message = "No datasource configured for database assertions",
+				detail = "Set datasource in TestCase.init() or pass to Assertions.init()"
+			);
+		}
+
+		var qb = new fuse.orm.QueryBuilder(variables.datasource);
+		var result = qb.where(arguments.attributes).get(arguments.table);
+
+		if (result.recordCount == 0) {
+			var attributesStr = serializeStruct(arguments.attributes);
+			throwAssertionFailure(
+				"record in table '#arguments.table#' matching #attributesStr#",
+				"no matching record found",
+				arguments.message
+			);
+		}
+	}
+
+	/**
+	 * Assert database table does not have record matching attributes
+	 *
+	 * @table Table name to query
+	 * @attributes Struct of column/value pairs to match
+	 * @message Optional custom failure message
+	 */
+	public void function assertDatabaseMissing(required string table, required struct attributes, string message = "") {
+		if (!structKeyExists(variables, "datasource")) {
+			throw(
+				type = "MissingDatasourceException",
+				message = "No datasource configured for database assertions",
+				detail = "Set datasource in TestCase.init() or pass to Assertions.init()"
+			);
+		}
+
+		var qb = new fuse.orm.QueryBuilder(variables.datasource);
+		var result = qb.where(arguments.attributes).get(arguments.table);
+
+		if (result.recordCount > 0) {
+			var attributesStr = serializeStruct(arguments.attributes);
+			throwAssertionFailure(
+				"no record in table '#arguments.table#' matching #attributesStr#",
+				"found #result.recordCount# matching record(s)",
+				arguments.message
+			);
+		}
+	}
+
+	/**
+	 * Assert database table has exact record count
+	 *
+	 * @table Table name to query
+	 * @count Expected record count
+	 * @message Optional custom failure message
+	 */
+	public void function assertDatabaseCount(required string table, required numeric count, string message = "") {
+		if (!structKeyExists(variables, "datasource")) {
+			throw(
+				type = "MissingDatasourceException",
+				message = "No datasource configured for database assertions",
+				detail = "Set datasource in TestCase.init() or pass to Assertions.init()"
+			);
+		}
+
+		var qb = new fuse.orm.QueryBuilder(variables.datasource);
+		var actualCount = qb.count(arguments.table);
+
+		if (actualCount != arguments.count) {
+			throwAssertionFailure(
+				"#arguments.count# record(s) in table '#arguments.table#'",
+				"#actualCount# record(s) found",
+				arguments.message
+			);
+		}
+	}
+
 	// PRIVATE METHODS
 
 	/**
@@ -411,6 +506,20 @@ component {
 		} else {
 			return "[" & getMetadata(arguments.value).name & "]";
 		}
+	}
+
+	/**
+	 * Serialize struct for display in error messages
+	 *
+	 * @attributes Struct to serialize
+	 * @return String representation
+	 */
+	private string function serializeStruct(required struct attributes) {
+		var parts = [];
+		for (var key in arguments.attributes) {
+			arrayAppend(parts, key & "=" & arguments.attributes[key]);
+		}
+		return "{" & arrayToList(parts, ", ") & "}";
 	}
 
 }
