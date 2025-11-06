@@ -10,7 +10,7 @@
 
 5. [x] ActiveRecord Base & CRUD — Model base class with static query methods (where, find, all), instance methods (save, update, delete), attribute handling with dirty tracking, table name conventions, primary key handling `L`
 
-6. [ ] Schema Builder & Migrations — CFC-based Migration base class, Schema builder for table operations (create/drop/rename), column types (id/string/text/integer/boolean/timestamps), column modifiers (notNull/unique/default/index), Migrator for tracking and running migrations with up/down support `M`
+6. [x] Schema Builder & Migrations — CFC-based Migration base class, Schema builder for table operations (create/drop/rename), column types (id/string/text/integer/boolean/timestamps), column modifiers (notNull/unique/default/index), Migrator for tracking and running migrations with up/down support `M`
 
 7. [ ] ORM Relationships — Relationship definition methods (hasMany, belongsTo, hasOne) in ActiveRecord, relationship metadata storage, foreign key conventions, relationship query methods (user.posts()) `L`
 
