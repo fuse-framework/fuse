@@ -10,6 +10,7 @@ component extends="fuse.orm.ActiveRecord" {
 
 		// Define relationships
 		this.belongsTo("user");
+		this.hasMany("comments");
 
 		return this;
 	}

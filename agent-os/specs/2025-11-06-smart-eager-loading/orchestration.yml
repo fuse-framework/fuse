@@ -1,0 +1,21 @@
+task_groups:
+  - name: ORM Core Layer
+    claude_code_subagent: implementer
+    standards:
+      - all
+  - name: Query Builder Integration
+    claude_code_subagent: implementer
+    standards:
+      - all
+  - name: Loading Strategy Implementation
+    claude_code_subagent: implementer
+    standards:
+      - all
+  - name: Integration & Advanced Features
+    claude_code_subagent: implementer
+    standards:
+      - all
+  - name: Test Review & Documentation
+    claude_code_subagent: implementation-verifier
+    standards:
+      - all

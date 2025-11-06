@@ -14,7 +14,7 @@
 
 7. [x] ORM Relationships — Relationship definition methods (hasMany, belongsTo, hasOne) in ActiveRecord, relationship metadata storage, foreign key conventions, relationship query methods (user.posts()) `L`
 
-8. [ ] Smart Eager Loading — includes() implementation with automatic N+1 prevention, smart strategy selection (JOIN vs separate queries), nested eager loading support, manual strategy override (joins, preload), result hydration for eager loaded relationships `L`
+8. [x] Smart Eager Loading — includes() implementation with automatic N+1 prevention, smart strategy selection (JOIN vs separate queries), nested eager loading support, manual strategy override (joins, preload), result hydration for eager loaded relationships `L`
 
 9. [ ] Validations & Lifecycle — Validator component with validates() DSL in models, built-in validators (required/email/unique/length/format), custom validator support, validation error collection, lifecycle callbacks (beforeSave/afterSave/beforeCreate/afterCreate/beforeDelete/afterDelete) with registration system `M`
 

@@ -85,6 +85,9 @@ component extends="ModelBuilder" {
 			variables.relationships = {};
 		}
 
+		// Initialize eager loaded relationships tracking
+		variables.loadedRelationships = {};
+
 		// Detect timestamp columns at initialization
 		detectTimestampColumns();
 
@@ -208,6 +211,18 @@ component extends="ModelBuilder" {
 	}
 
 	/**
+	 * Check if relationship has been eager loaded
+	 *
+	 * @param relationshipName Name of the relationship to check
+	 * @return Boolean true if relationship data is cached, false otherwise
+	 *
+	 * @example user.isRelationshipLoaded("posts") returns true/false
+	 */
+	public boolean function isRelationshipLoaded(required string relationshipName) {
+		return structKeyExists(variables.loadedRelationships, arguments.relationshipName);
+	}
+
+	/**
 	 * Query records with WHERE conditions
 	 * Can be called statically via User::where() or on instance
 	 *
@@ -282,6 +297,7 @@ component extends="ModelBuilder" {
 
 	/**
 	 * Override ModelBuilder get() to return array of model instances
+	 * Triggers eager loading if eagerLoad is populated
 	 *
 	 * @return Array of model instances
 	 */
@@ -297,11 +313,19 @@ component extends="ModelBuilder" {
 			arrayAppend(instances, instance);
 		}
 
+		// Check if eager loading is requested
+		if (arrayLen(variables.eagerLoad) > 0 && arrayLen(instances) > 0) {
+			// Execute eager loading
+			var eagerLoader = new fuse.orm.EagerLoader();
+			instances = eagerLoader.load(instances, variables.eagerLoad, this);
+		}
+
 		return instances;
 	}
 
 	/**
 	 * Override ModelBuilder first() to return single model instance
+	 * Triggers eager loading if eagerLoad is populated
 	 *
 	 * @return Model instance or null if no results
 	 */
@@ -316,6 +340,15 @@ component extends="ModelBuilder" {
 		// Convert struct to model instance
 		var instance = createModelInstance();
 		instance.populate(row);
+
+		// Check if eager loading is requested
+		if (arrayLen(variables.eagerLoad) > 0) {
+			// Execute eager loading (wrap single instance in array)
+			var eagerLoader = new fuse.orm.EagerLoader();
+			var instances = eagerLoader.load([instance], variables.eagerLoad, this);
+			// Return first instance from array
+			instance = instances[1];
+		}
 
 		return instance;
 	}
@@ -572,10 +605,28 @@ component extends="ModelBuilder" {
 	 * Build relationship query from relationship metadata
 	 * Constructs ModelBuilder with appropriate WHERE clause for the relationship type
 	 *
+	 * Checks loadedRelationships cache first. If relationship already loaded via
+	 * eager loading, returns cached value. Otherwise, triggers N+1 detection
+	 * and executes lazy query.
+	 *
 	 * @param relationshipName Name of the relationship
-	 * @return ModelBuilder instance configured for the relationship query
+	 * @return ModelBuilder instance configured for the relationship query, or cached data
 	 */
 	private function buildRelationshipQuery(required string relationshipName) {
+		// Check if relationship already loaded via eager loading
+		if (structKeyExists(variables.loadedRelationships, arguments.relationshipName)) {
+			// Return cached value
+			return variables.loadedRelationships[arguments.relationshipName];
+		}
+
+		// Not eager loaded - detect N+1 and execute lazy query
+		var metadata = getMetadata(this);
+		var modelClass = listLast(metadata.name, ".");
+
+		// Trigger N+1 detection
+		var detector = new fuse.orm.N1Detector();
+		detector.detect(modelClass, arguments.relationshipName, {isDevelopment: true});
+
 		// Get relationship metadata
 		var relationship = variables.relationships[arguments.relationshipName];
 		var type = relationship.type;
