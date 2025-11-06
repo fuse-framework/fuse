@@ -1,0 +1,17 @@
+task_groups:
+  - name: Relationship Definition Methods
+    claude_code_subagent: implementer
+    standards:
+      - all
+  - name: Dynamic Relationship Query Resolution
+    claude_code_subagent: implementer
+    standards:
+      - all
+  - name: Terminal Methods & Query Integration
+    claude_code_subagent: implementer
+    standards:
+      - all
+  - name: Test Coverage Review & Gap Analysis
+    claude_code_subagent: implementation-verifier
+    standards:
+      - all

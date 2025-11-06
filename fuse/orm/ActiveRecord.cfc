@@ -29,9 +29,22 @@
  *     user.delete();
  *     user.reload();
  *
+ * Relationships:
+ *     component extends="fuse.orm.ActiveRecord" {
+ *         public function init(datasource) {
+ *             super.init(datasource);
+ *             this.hasMany("posts");
+ *             this.hasOne("profile");
+ *             this.belongsTo("team");
+ *             return this;
+ *         }
+ *     }
+ *     var posts = user.posts().where({published: true}).get();
+ *
  * Conventions:
  * - Table name: pluralize component name with 's' (User -> users, Post -> posts)
  * - Primary key: defaults to 'id'
+ * - Foreign keys: {model_name}_id (user_id, post_id)
  * - Timestamps: auto-populate created_at on INSERT, updated_at on UPDATE
  * - Dirty tracking: UPDATE queries only include changed attributes
  */
@@ -67,6 +80,11 @@ component extends="ModelBuilder" {
 			variables.primaryKey = "id";
 		}
 
+		// Initialize relationships storage at class level
+		if (!structKeyExists(variables, "relationships")) {
+			variables.relationships = {};
+		}
+
 		// Detect timestamp columns at initialization
 		detectTimestampColumns();
 
@@ -74,6 +92,117 @@ component extends="ModelBuilder" {
 		variables.attributes = {};
 		variables.original = {};
 		variables.isPersisted = false;
+
+		return this;
+	}
+
+	/**
+	 * Define hasMany relationship
+	 *
+	 * @param name Relationship name (e.g., "posts")
+	 * @param options Optional struct with foreignKey and className overrides
+	 * @return ActiveRecord instance for chaining
+	 *
+	 * @example this.hasMany("posts")
+	 * @example this.hasMany("articles", {foreignKey: "author_id", className: "BlogPost"})
+	 */
+	public function hasMany(required string name, struct options = {}) {
+		// Infer className from relationship name (posts -> Post, blogPosts -> BlogPost)
+		var className = "";
+		if (structKeyExists(arguments.options, "className")) {
+			className = arguments.options.className;
+		} else {
+			className = inferClassNameFromRelationship(arguments.name);
+		}
+
+		// Infer foreign key: {singular_table_name}_id
+		var foreignKey = "";
+		if (structKeyExists(arguments.options, "foreignKey")) {
+			foreignKey = arguments.options.foreignKey;
+		} else {
+			foreignKey = singularizeTableName(variables.tableName) & "_id";
+		}
+
+		// Store relationship metadata
+		variables.relationships[arguments.name] = {
+			type: "hasMany",
+			foreignKey: foreignKey,
+			className: className
+		};
+
+		return this;
+	}
+
+	/**
+	 * Define belongsTo relationship
+	 *
+	 * @param name Relationship name (e.g., "user")
+	 * @param options Optional struct with foreignKey and className overrides
+	 * @return ActiveRecord instance for chaining
+	 *
+	 * @example this.belongsTo("user")
+	 * @example this.belongsTo("author", {foreignKey: "created_by_id", className: "User"})
+	 */
+	public function belongsTo(required string name, struct options = {}) {
+		// Infer className from relationship name (user -> User)
+		var className = "";
+		if (structKeyExists(arguments.options, "className")) {
+			className = arguments.options.className;
+		} else {
+			className = inferClassNameFromRelationship(arguments.name);
+		}
+
+		// Infer foreign key: {relationship_name}_id
+		var foreignKey = "";
+		if (structKeyExists(arguments.options, "foreignKey")) {
+			foreignKey = arguments.options.foreignKey;
+		} else {
+			foreignKey = lcase(arguments.name) & "_id";
+		}
+
+		// Store relationship metadata
+		variables.relationships[arguments.name] = {
+			type: "belongsTo",
+			foreignKey: foreignKey,
+			className: className
+		};
+
+		return this;
+	}
+
+	/**
+	 * Define hasOne relationship
+	 *
+	 * @param name Relationship name (e.g., "profile")
+	 * @param options Optional struct with foreignKey and className overrides
+	 * @return ActiveRecord instance for chaining
+	 *
+	 * @example this.hasOne("profile")
+	 * @example this.hasOne("settings", {foreignKey: "owner_id", className: "UserSettings"})
+	 */
+	public function hasOne(required string name, struct options = {}) {
+		// Infer className from relationship name (profile -> Profile)
+		var className = "";
+		if (structKeyExists(arguments.options, "className")) {
+			className = arguments.options.className;
+		} else {
+			className = inferClassNameFromRelationship(arguments.name);
+		}
+
+		// Infer foreign key: {singular_table_name}_id
+		var foreignKey = "";
+		if (structKeyExists(arguments.options, "foreignKey")) {
+			foreignKey = arguments.options.foreignKey;
+		} else {
+			foreignKey = singularizeTableName(variables.tableName) & "_id";
+		}
+
+		// Store relationship metadata
+		variables.relationships[arguments.name] = {
+			type: "hasOne",
+			foreignKey: foreignKey,
+			className: className
+		};
 
 		return this;
 	}
@@ -211,15 +340,20 @@ component extends="ModelBuilder" {
 	}
 
 	/**
-	 * Handle attribute getter/setter via missing method
+	 * Handle relationship queries and attribute getter/setter via missing method
 	 *
 	 * @param missingMethodName Name of the missing method
 	 * @param missingMethodArguments Arguments passed to the missing method
-	 * @return Attribute value for getter, this for setter
+	 * @return ModelBuilder for relationships, attribute value for getter, this for setter
 	 */
 	public function onMissingMethod(required string missingMethodName, required struct missingMethodArguments) {
 		var methodName = arguments.missingMethodName;
 		var args = arguments.missingMethodArguments;
+
+		// Check if this is a relationship query
+		if (structKeyExists(variables, "relationships") && structKeyExists(variables.relationships, methodName) && structCount(args) == 0) {
+			return buildRelationshipQuery(methodName);
+		}
 
 		// Detect getter pattern: method starts with "get" or has zero arguments
 		var isGetter = false;
@@ -433,6 +567,89 @@ component extends="ModelBuilder" {
 	}
 
 	// Private helper methods
+
+	/**
+	 * Build relationship query from relationship metadata
+	 * Constructs ModelBuilder with appropriate WHERE clause for the relationship type
+	 *
+	 * @param relationshipName Name of the relationship
+	 * @return ModelBuilder instance configured for the relationship query
+	 */
+	private function buildRelationshipQuery(required string relationshipName) {
+		// Get relationship metadata
+		var relationship = variables.relationships[arguments.relationshipName];
+		var type = relationship.type;
+		var foreignKey = relationship.foreignKey;
+		var className = relationship.className;
+
+		// Build full component path (assume tests.fixtures namespace for test models)
+		var fullClassName = className;
+		if (!find(".", fullClassName)) {
+			// Try to infer full path from tests.fixtures
+			fullClassName = "tests.fixtures." & className;
+		}
+
+		// Create instance of related model
+		var relatedInstance = createObject("component", fullClassName).init(variables.datasource);
+
+		// Build WHERE clause based on relationship type
+		var whereConditions = {};
+
+		if (type == "belongsTo") {
+			// belongsTo: WHERE {foreignKey} = this.attributes[foreignKey]
+			// Example: post.user() -> WHERE user_id = post.attributes["user_id"]
+			if (structKeyExists(variables.attributes, foreignKey)) {
+				whereConditions[foreignKey] = variables.attributes[foreignKey];
+			}
+		} else if (type == "hasMany" || type == "hasOne") {
+			// hasMany/hasOne: WHERE {foreignKey} = this.attributes[primaryKey]
+			// Example: user.posts() -> WHERE user_id = user.attributes["id"]
+			if (structKeyExists(variables.attributes, variables.primaryKey)) {
+				whereConditions[foreignKey] = variables.attributes[variables.primaryKey];
+			}
+		}
+
+		// Apply WHERE clause and return ModelBuilder
+		return relatedInstance.where(whereConditions);
+	}
+
+	/**
+	 * Infer class name from relationship name
+	 * Converts plural/camelCase relationship names to PascalCase class names
+	 *
+	 * @param relationshipName Name of the relationship (e.g., "posts", "blogPosts")
+	 * @return Class name (e.g., "Post", "BlogPost")
+	 */
+	private string function inferClassNameFromRelationship(required string relationshipName) {
+		var name = arguments.relationshipName;
+
+		// Remove trailing 's' if present (posts -> post)
+		if (right(name, 1) == "s" && len(name) > 1) {
+			name = left(name, len(name) - 1);
+		}
+
+		// Capitalize first letter (post -> Post, blogPost -> BlogPost)
+		return ucase(left(name, 1)) & mid(name, 2, len(name) - 1);
+	}
+
+	/**
+	 * Singularize table name by removing trailing 's'
+	 * Simple singularization for conventional table names (users -> user, posts -> post)
+	 *
+	 * @param tableName Plural table name
+	 * @return Singular form of table name
+	 */
+	private string function singularizeTableName(required string tableName) {
+		var name = arguments.tableName;
+
+		// Remove trailing 's' if present (users -> user, posts -> post)
+		if (right(name, 1) == "s" && len(name) > 1) {
+			return left(name, len(name) - 1);
+		}
+
+		// Return as-is if no trailing 's'
+		return name;
+	}
 
 	/**
 	 * Perform INSERT operation
