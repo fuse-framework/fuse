@@ -1,0 +1,17 @@
+# CommandBox
+testbox/
+.engine/
+.cfformat.json
+.CommandBoxContainer
+
+# Lucee
+WEB-INF/
+
+# IDE
+.vscode/
+.idea/
+*.sublime-*
+
+# OS
+.DS_Store
+Thumbs.db

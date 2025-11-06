@@ -1,0 +1,887 @@
+# Fuse Framework API Reference
+# Machine-readable API schema for AI agents
+# Version: 1.0.0
+
+components:
+  # =============================================================================
+  # MODELS (ActiveRecord)
+  # =============================================================================
+
+  User:
+    type: model
+    extends: fuse.orm.ActiveRecord
+    table: users
+    primaryKey: id
+
+    methods:
+      # Static Query Methods
+      find:
+        type: static
+        params:
+          - name: id
+            type: numeric|string
+            required: true
+        returns: User|null
+        throws: []
+        executes: immediate
+        description: Find record by primary key
+        example: "User.find(1)"
+
+      findOrFail:
+        type: static
+        params:
+          - name: id
+            type: numeric|string
+            required: true
+        returns: User
+        throws: [ModelNotFoundException]
+        executes: immediate
+        description: Find record or throw exception
+        example: "User.findOrFail(1)"
+
+      where:
+        type: static
+        signatures:
+          - params:
+              - name: criteria
+                type: struct
+                required: true
+            example: "User.where({active: true})"
+          - params:
+              - name: column
+                type: string
+                required: true
+              - name: value
+                type: any
+                required: true
+            example: "User.where('email', 'test@test.com')"
+          - params:
+              - name: column
+                type: string
+                required: true
+              - name: operator
+                type: string
+                required: true
+              - name: value
+                type: any
+                required: true
+            example: "User.where('age', '>=', 18)"
+        returns: ModelBuilder
+        throws: []
+        executes: lazy
+        description: Build WHERE conditions (chainable)
+
+      all:
+        type: static
+        params: []
+        returns: ModelBuilder
+        throws: []
+        executes: lazy
+        description: Get all records query builder
+        example: "User.all().get()"
+
+      create:
+        type: static
+        params:
+          - name: attributes
+            type: struct
+            required: true
+        returns: User
+        throws: [ValidationException]
+        executes: immediate
+        description: Create and save new record
+        example: "User.create({name: 'John', email: 'john@test.com'})"
+
+      query:
+        type: static
+        params: []
+        returns: ModelBuilder
+        throws: []
+        executes: lazy
+        description: Get new query builder instance
+        example: "User.query().where({...})"
+
+      # Instance Methods
+      save:
+        type: instance
+        params: []
+        returns: boolean
+        throws: [ValidationException]
+        executes: immediate
+        description: Save model to database
+        example: "user.save()"
+
+      update:
+        type: instance
+        params:
+          - name: attributes
+            type: struct
+            required: true
+        returns: boolean
+        throws: [ValidationException]
+        executes: immediate
+        description: Update attributes and save
+        example: "user.update({name: 'Jane'})"
+
+      delete:
+        type: instance
+        params: []
+        returns: boolean
+        throws: []
+        executes: immediate
+        description: Delete record from database
+        example: "user.delete()"
+
+      get:
+        type: instance
+        params:
+          - name: key
+            type: string
+            required: true
+        returns: any|null
+        throws: []
+        executes: immediate
+        description: Get attribute value
+        example: "user.get('email')"
+
+      set:
+        type: instance
+        params:
+          - name: key
+            type: string
+            required: true
+          - name: value
+            type: any
+            required: true
+        returns: User
+        throws: []
+        executes: immediate
+        description: Set attribute value
+        example: "user.set('name', 'John')"
+
+      hasErrors:
+        type: instance
+        params: []
+        returns: boolean
+        throws: []
+        executes: immediate
+        description: Check if model has validation errors
+        example: "user.hasErrors()"
+
+      getErrors:
+        type: instance
+        params:
+          - name: field
+            type: string
+            required: false
+        returns: array|struct
+        throws: []
+        executes: immediate
+        description: Get validation errors
+        example: "user.getErrors()"
+
+      # Relationship Methods
+      hasMany:
+        type: instance
+        params:
+          - name: name
+            type: string
+            required: true
+          - name: options
+            type: struct
+            required: false
+        returns: void
+        throws: []
+        executes: immediate
+        description: Define one-to-many relationship
+        example: "hasMany('posts')"
+
+      belongsTo:
+        type: instance
+        params:
+          - name: name
+            type: string
+            required: true
+          - name: options
+            type: struct
+            required: false
+        returns: void
+        throws: []
+        executes: immediate
+        description: Define many-to-one relationship
+        example: "belongsTo('company')"
+
+      hasOne:
+        type: instance
+        params:
+          - name: name
+            type: string
+            required: true
+          - name: options
+            type: struct
+            required: false
+        returns: void
+        throws: []
+        executes: immediate
+        description: Define one-to-one relationship
+        example: "hasOne('profile')"
+
+  # =============================================================================
+  # QUERY BUILDER
+  # =============================================================================
+
+  QueryBuilder:
+    type: builder
+    description: Database-agnostic query builder
+
+    methods:
+      where:
+        type: instance
+        params:
+          - name: criteria
+            type: struct|string
+            required: true
+          - name: operator
+            type: string
+            required: false
+            default: "="
+          - name: value
+            type: any
+            required: false
+        returns: QueryBuilder
+        throws: []
+        executes: lazy
+        description: Add WHERE condition
+        example: "builder.where({active: true})"
+
+      whereIn:
+        type: instance
+        params:
+          - name: column
+            type: string
+            required: true
+          - name: values
+            type: array
+            required: true
+        returns: QueryBuilder
+        throws: []
+        executes: lazy
+        description: Add WHERE IN condition
+        example: "builder.whereIn('id', [1,2,3])"
+
+      whereNull:
+        type: instance
+        params:
+          - name: column
+            type: string
+            required: true
+        returns: QueryBuilder
+        throws: []
+        executes: lazy
+        description: Add WHERE column IS NULL
+        example: "builder.whereNull('deleted_at')"
+
+      whereNotNull:
+        type: instance
+        params:
+          - name: column
+            type: string
+            required: true
+        returns: QueryBuilder
+        throws: []
+        executes: lazy
+        description: Add WHERE column IS NOT NULL
+        example: "builder.whereNotNull('email')"
+
+      whereRaw:
+        type: instance
+        params:
+          - name: sql
+            type: string
+            required: true
+          - name: bindings
+            type: array
+            required: false
+            default: []
+        returns: QueryBuilder
+        throws: []
+        executes: lazy
+        description: Add raw WHERE clause
+        example: "builder.whereRaw('age > ?', [18])"
+
+      orderBy:
+        type: instance
+        params:
+          - name: column
+            type: string
+            required: true
+          - name: direction
+            type: string
+            required: false
+            default: "ASC"
+        returns: QueryBuilder
+        throws: []
+        executes: lazy
+        description: Add ORDER BY clause
+        example: "builder.orderBy('created_at', 'DESC')"
+
+      limit:
+        type: instance
+        params:
+          - name: value
+            type: numeric
+            required: true
+        returns: QueryBuilder
+        throws: []
+        executes: lazy
+        description: Add LIMIT clause
+        example: "builder.limit(10)"
+
+      offset:
+        type: instance
+        params:
+          - name: value
+            type: numeric
+            required: true
+        returns: QueryBuilder
+        throws: []
+        executes: lazy
+        description: Add OFFSET clause
+        example: "builder.offset(20)"
+
+      join:
+        type: instance
+        params:
+          - name: table
+            type: string
+            required: true
+          - name: first
+            type: string
+            required: true
+          - name: operator
+            type: string
+            required: false
+            default: "="
+          - name: second
+            type: string
+            required: true
+        returns: QueryBuilder
+        throws: []
+        executes: lazy
+        description: Add INNER JOIN
+        example: "builder.join('posts', 'users.id', '=', 'posts.user_id')"
+
+      leftJoin:
+        type: instance
+        params:
+          - name: table
+            type: string
+            required: true
+          - name: first
+            type: string
+            required: true
+          - name: operator
+            type: string
+            required: false
+            default: "="
+          - name: second
+            type: string
+            required: true
+        returns: QueryBuilder
+        throws: []
+        executes: lazy
+        description: Add LEFT JOIN
+        example: "builder.leftJoin('posts', 'users.id', '=', 'posts.user_id')"
+
+      select:
+        type: instance
+        params:
+          - name: columns
+            type: array|string
+            required: true
+        returns: QueryBuilder
+        throws: []
+        executes: lazy
+        description: Specify SELECT columns
+        example: "builder.select(['id', 'name', 'email'])"
+
+      # Execution Methods
+      get:
+        type: instance
+        params: []
+        returns: array
+        throws: []
+        executes: immediate
+        description: Execute query and return all results
+        example: "builder.get()"
+
+      first:
+        type: instance
+        params: []
+        returns: struct|null
+        throws: []
+        executes: immediate
+        description: Execute query and return first result
+        example: "builder.first()"
+
+      count:
+        type: instance
+        params: []
+        returns: numeric
+        throws: []
+        executes: immediate
+        description: Execute COUNT(*) query
+        example: "builder.count()"
+
+      exists:
+        type: instance
+        params: []
+        returns: boolean
+        throws: []
+        executes: immediate
+        description: Check if any records exist
+        example: "builder.exists()"
+
+      pluck:
+        type: instance
+        params:
+          - name: column
+            type: string
+            required: true
+        returns: array
+        throws: []
+        executes: immediate
+        description: Get array of column values
+        example: "builder.pluck('email')"
+
+  # =============================================================================
+  # MODEL BUILDER (ORM Layer)
+  # =============================================================================
+
+  ModelBuilder:
+    type: builder
+    extends: QueryBuilder
+    description: ORM features on top of QueryBuilder
+
+    methods:
+      includes:
+        type: instance
+        params:
+          - name: relationships
+            type: string|array|struct
+            required: true
+        returns: ModelBuilder
+        throws: []
+        executes: lazy
+        description: Eager load relationships
+        example: "builder.includes('posts')"
+
+      with:
+        type: instance
+        params:
+          - name: relationships
+            type: string|array|struct
+            required: true
+        returns: ModelBuilder
+        throws: []
+        executes: lazy
+        description: Alias for includes()
+        example: "builder.with('posts', 'comments')"
+
+      # Overridden Execution Methods (return models not structs)
+      get:
+        type: instance
+        params: []
+        returns: array<Model>
+        throws: []
+        executes: immediate
+        description: Execute and return model instances
+        example: "builder.get()"
+
+      first:
+        type: instance
+        params: []
+        returns: Model|null
+        throws: []
+        executes: immediate
+        description: Execute and return first model
+        example: "builder.first()"
+
+      findOrFail:
+        type: instance
+        params:
+          - name: id
+            type: numeric|string
+            required: true
+        returns: Model
+        throws: [ModelNotFoundException]
+        executes: immediate
+        description: Find by ID or throw
+        example: "builder.findOrFail(1)"
+
+      create:
+        type: instance
+        params:
+          - name: attributes
+            type: struct
+            required: true
+        returns: Model
+        throws: [ValidationException]
+        executes: immediate
+        description: Create model instance
+        example: "builder.create({name: 'John'})"
+
+  # =============================================================================
+  # TRANSACTION
+  # =============================================================================
+
+  Transaction:
+    type: utility
+    description: Database transaction management
+
+    methods:
+      run:
+        type: static
+        params:
+          - name: callback
+            type: function
+            required: true
+        returns: any
+        throws: [any]
+        executes: immediate
+        description: Run callback in transaction (auto commit/rollback)
+        example: "Transaction.run(function() { /* ... */ })"
+
+      begin:
+        type: static
+        params: []
+        returns: void
+        throws: []
+        executes: immediate
+        description: Begin transaction manually
+        example: "Transaction.begin()"
+
+      commit:
+        type: static
+        params: []
+        returns: void
+        throws: []
+        executes: immediate
+        description: Commit transaction
+        example: "Transaction.commit()"
+
+      rollback:
+        type: static
+        params: []
+        returns: void
+        throws: []
+        executes: immediate
+        description: Rollback transaction
+        example: "Transaction.rollback()"
+
+  # =============================================================================
+  # VALIDATION
+  # =============================================================================
+
+  Validator:
+    type: utility
+    description: Validation rules and execution
+
+    rules:
+      required:
+        params:
+          - name: message
+            type: string
+            required: false
+        description: Field must not be empty
+        example: "validates('email', {required: true})"
+
+      email:
+        params:
+          - name: message
+            type: string
+            required: false
+        description: Field must be valid email
+        example: "validates('email', {email: true})"
+
+      unique:
+        params:
+          - name: message
+            type: string
+            required: false
+        description: Field value must be unique in table
+        example: "validates('email', {unique: true})"
+
+      minLength:
+        params:
+          - name: value
+            type: numeric
+            required: true
+          - name: message
+            type: string
+            required: false
+        description: Field must be at least N characters
+        example: "validates('password', {minLength: 8})"
+
+      maxLength:
+        params:
+          - name: value
+            type: numeric
+            required: true
+          - name: message
+            type: string
+            required: false
+        description: Field must be at most N characters
+        example: "validates('name', {maxLength: 100})"
+
+      format:
+        params:
+          - name: regex
+            type: string
+            required: true
+          - name: message
+            type: string
+            required: false
+        description: Field must match regex pattern
+        example: "validates('phone', {format: '^\\d{10}$'})"
+
+  # =============================================================================
+  # ROUTER
+  # =============================================================================
+
+  Router:
+    type: service
+    description: HTTP route registration and resolution
+
+    methods:
+      get:
+        type: instance
+        params:
+          - name: pattern
+            type: string
+            required: true
+          - name: handler
+            type: string
+            required: true
+        returns: void
+        throws: []
+        executes: immediate
+        description: Register GET route
+        example: "router.get('/users', 'Users.index')"
+
+      post:
+        type: instance
+        params:
+          - name: pattern
+            type: string
+            required: true
+          - name: handler
+            type: string
+            required: true
+        returns: void
+        throws: []
+        executes: immediate
+        description: Register POST route
+        example: "router.post('/users', 'Users.create')"
+
+      put:
+        type: instance
+        params:
+          - name: pattern
+            type: string
+            required: true
+          - name: handler
+            type: string
+            required: true
+        returns: void
+        throws: []
+        executes: immediate
+        description: Register PUT route
+        example: "router.put('/users/:id', 'Users.update')"
+
+      delete:
+        type: instance
+        params:
+          - name: pattern
+            type: string
+            required: true
+          - name: handler
+            type: string
+            required: true
+        returns: void
+        throws: []
+        executes: immediate
+        description: Register DELETE route
+        example: "router.delete('/users/:id', 'Users.delete')"
+
+      resource:
+        type: instance
+        params:
+          - name: name
+            type: string
+            required: true
+          - name: callback
+            type: function
+            required: false
+        returns: void
+        throws: []
+        executes: immediate
+        description: Register RESTful resource routes
+        example: "router.resource('users')"
+
+      middleware:
+        type: instance
+        params:
+          - name: name
+            type: string
+            required: true
+          - name: handler
+            type: string
+            required: true
+        returns: void
+        throws: []
+        executes: immediate
+        description: Register named middleware
+        example: "router.middleware('auth', 'AuthMiddleware')"
+
+# =============================================================================
+# EXCEPTIONS
+# =============================================================================
+
+exceptions:
+  ModelNotFoundException:
+    extends: fuse.exceptions.BaseException
+    data:
+      model: string
+      id: any
+    description: Thrown when findOrFail() cannot find record
+    example: "User.findOrFail(999)"
+
+  ValidationException:
+    extends: fuse.exceptions.BaseException
+    data:
+      errors: struct
+      model: Model
+    description: Thrown when save() fails validation
+    example: "User.create({email: 'invalid'})"
+
+  CircularDependency:
+    extends: fuse.exceptions.BaseException
+    data:
+      modules: array
+    description: Thrown when modules have circular dependencies
+    example: "Module A depends on B which depends on A"
+
+  MissingDependency:
+    extends: fuse.exceptions.BaseException
+    data:
+      module: string
+      dependency: string
+    description: Thrown when required module dependency not loaded
+    example: "Module requires 'cache' but it's not loaded"
+
+  CacheMiss:
+    extends: fuse.exceptions.BaseException
+    data:
+      key: string
+    description: Thrown when cache key not found (RAMProvider)
+    example: "cache.get('nonexistent')"
+
+# =============================================================================
+# WHERE OPERATORS
+# =============================================================================
+
+where_operators:
+  eq:
+    sql: "="
+    example: "{age: {eq: 18}}"
+    description: Equal to
+
+  neq:
+    sql: "!="
+    example: "{status: {neq: 'inactive'}}"
+    description: Not equal to
+
+  gt:
+    sql: ">"
+    example: "{age: {gt: 18}}"
+    description: Greater than
+
+  gte:
+    sql: ">="
+    example: "{age: {gte: 18}}"
+    description: Greater than or equal
+
+  lt:
+    sql: "<"
+    example: "{age: {lt: 65}}"
+    description: Less than
+
+  lte:
+    sql: "<="
+    example: "{age: {lte: 65}}"
+    description: Less than or equal
+
+  like:
+    sql: "LIKE"
+    example: "{name: {like: '%john%'}}"
+    description: Pattern match
+
+  in:
+    sql: "IN"
+    example: "{status: {in: ['active', 'pending']}}"
+    description: Value in array
+
+  notIn:
+    sql: "NOT IN"
+    example: "{status: {notIn: ['deleted', 'archived']}}"
+    description: Value not in array
+
+  isNull:
+    sql: "IS NULL"
+    example: "{deleted_at: {isNull: true}}"
+    description: Column is null
+
+  isNotNull:
+    sql: "IS NOT NULL"
+    example: "{email: {isNotNull: true}}"
+    description: Column is not null
+
+# =============================================================================
+# CONVENTIONS
+# =============================================================================
+
+conventions:
+  models:
+    naming: "Singular, PascalCase"
+    location: "models/"
+    example: "models/User.cfc"
+
+  tables:
+    naming: "Plural, lowercase"
+    example: "users"
+
+  handlers:
+    naming: "PascalCase + 'Handler'"
+    location: "handlers/"
+    example: "handlers/UsersHandler.cfc"
+
+  views:
+    naming: "lowercase, matches action"
+    location: "views/{handler}/"
+    example: "views/users/index.cfm"
+
+  migrations:
+    naming: "YYYYMMDDHHMMSS_Description.cfc"
+    location: "db/migrations/"
+    example: "db/migrations/20250105120000_CreateUsers.cfc"
+
+  tests:
+    naming: "Name + 'Test.cfc'"
+    location: "tests/{type}/"
+    example: "tests/models/UserTest.cfc"
+
+  modules:
+    naming: "Directory name, Module.cfc inside"
+    location: "modules/{name}/"
+    example: "modules/auth/Module.cfc"

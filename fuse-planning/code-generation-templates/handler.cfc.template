@@ -1,0 +1,106 @@
+/**
+ * {{HandlerName}} Handler
+ * Generated: {{timestamp}}
+ */
+component {
+    {{#dependencies}}
+    property name="{{name}}" inject="{{service}}";
+    {{/dependencies}}
+
+    /**
+     * GET /{{resource}}
+     */
+    function index() {
+        return {
+            view: "{{resource}}/index",
+            data: {
+                {{resource}}: {{Model}}.all().get()
+            }
+        };
+    }
+
+    /**
+     * GET /{{resource}}/:id
+     */
+    function show() {
+        return {
+            view: "{{resource}}/show",
+            data: {
+                {{singular}}: {{Model}}.findOrFail(params.id)
+            }
+        };
+    }
+
+    /**
+     * GET /{{resource}}/new
+     */
+    function new() {
+        return {
+            view: "{{resource}}/new",
+            data: {
+                {{singular}}: {{Model}}.newInstance()
+            }
+        };
+    }
+
+    /**
+     * POST /{{resource}}
+     */
+    function create() {
+        var {{singular}} = {{Model}}.create(params.{{singular}});
+
+        if ({{singular}}.hasErrors()) {
+            return {
+                view: "{{resource}}/new",
+                data: {
+                    {{singular}}: {{singular}},
+                    errors: {{singular}}.getErrors()
+                }
+            };
+        }
+
+        relocate("{{resource}}.show", {id: {{singular}}.id});
+    }
+
+    /**
+     * GET /{{resource}}/:id/edit
+     */
+    function edit() {
+        return {
+            view: "{{resource}}/edit",
+            data: {
+                {{singular}}: {{Model}}.findOrFail(params.id)
+            }
+        };
+    }
+
+    /**
+     * PUT /{{resource}}/:id
+     */
+    function update() {
+        var {{singular}} = {{Model}}.findOrFail(params.id);
+        {{singular}}.update(params.{{singular}});
+
+        if ({{singular}}.hasErrors()) {
+            return {
+                view: "{{resource}}/edit",
+                data: {
+                    {{singular}}: {{singular}},
+                    errors: {{singular}}.getErrors()
+                }
+            };
+        }
+
+        relocate("{{resource}}.show", {id: {{singular}}.id});
+    }
+
+    /**
+     * DELETE /{{resource}}/:id
+     */
+    function delete() {
+        var {{singular}} = {{Model}}.findOrFail(params.id);
+        {{singular}}.delete();
+
+        relocate("{{resource}}.index");
+    }
+}

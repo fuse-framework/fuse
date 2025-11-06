@@ -1,0 +1,21 @@
+task_groups:
+  - name: DI Container Foundation
+    claude_code_subagent: backend-developer
+    standards:
+      - all
+  - name: Configuration Loading & Merging
+    claude_code_subagent: backend-developer
+    standards:
+      - all
+  - name: Module Discovery & Dependency Resolution
+    claude_code_subagent: backend-developer
+    standards:
+      - all
+  - name: Thread-Safe Application.cfc Bootstrap
+    claude_code_subagent: backend-developer
+    standards:
+      - all
+  - name: Integration Tests & Gap Analysis
+    claude_code_subagent: test-automator
+    standards:
+      - all

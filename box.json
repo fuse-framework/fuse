@@ -1,0 +1,13 @@
+{
+	"name": "Fuse Framework",
+	"slug": "fuse",
+	"version": "0.1.0",
+	"type": "framework",
+	"dependencies": {},
+	"devDependencies": {
+		"testbox": "^5.0.0"
+	},
+	"installPaths": {
+		"testbox": "testbox/"
+	}
+}

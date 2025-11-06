@@ -1,0 +1,29 @@
+/**
+ * {{ModelName}} Model
+ * Table: {{tableName}}
+ * Generated: {{timestamp}}
+ */
+component extends="fuse.orm.ActiveRecord" {
+    {{#properties}}
+    property name="{{name}}" type="{{type}}";
+    {{/properties}}
+
+    function init() {
+        super.init();
+
+        {{#validations}}
+        validates("{{field}}", {{{rules}}});
+        {{/validations}}
+
+        {{#relationships}}
+        {{type}}("{{name}}"{{#options}}, {{{options}}}{{/options}});
+        {{/relationships}}
+    }
+
+    {{#scopes}}
+    function scope{{Name}}(query{{#params}}, {{name}}{{/params}}) {
+        return query{{#where}}.where({{{criteria}}}){{/where}};
+    }
+
+    {{/scopes}}
+}

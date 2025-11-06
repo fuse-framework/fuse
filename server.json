@@ -1,0 +1,12 @@
+{
+    "name":"fuse",
+    "openBrowser":false,
+    "web":{
+        "http":{
+            "port":8080
+        }
+    },
+    "app":{
+        "cfengine":"lucee"
+    }
+}
