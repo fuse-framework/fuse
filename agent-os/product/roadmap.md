@@ -8,7 +8,7 @@
 
 4. [x] Query Builder Foundation — Two-layer query builder (QueryBuilder for raw SQL, ModelBuilder for ORM features), hash-based where() with operator structs ({gte:, like:, in:}), orderBy/limit/offset, raw SQL support (whereRaw, selectRaw) `L`
 
-5. [ ] ActiveRecord Base & CRUD — Model base class with static query methods (where, find, all), instance methods (save, update, delete), attribute handling with dirty tracking, table name conventions, primary key handling `L`
+5. [x] ActiveRecord Base & CRUD — Model base class with static query methods (where, find, all), instance methods (save, update, delete), attribute handling with dirty tracking, table name conventions, primary key handling `L`
 
 6. [ ] Schema Builder & Migrations — CFC-based Migration base class, Schema builder for table operations (create/drop/rename), column types (id/string/text/integer/boolean/timestamps), column modifiers (notNull/unique/default/index), Migrator for tracking and running migrations with up/down support `M`
 
