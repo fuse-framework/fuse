@@ -1,0 +1,25 @@
+task_groups:
+  - name: ColumnBuilder Component
+    claude_code_subagent: implementer
+    standards:
+      - all
+  - name: TableBuilder Component
+    claude_code_subagent: implementer
+    standards:
+      - all
+  - name: SchemaBuilder Component
+    claude_code_subagent: implementer
+    standards:
+      - all
+  - name: Migration Base Class & Migrator
+    claude_code_subagent: implementer
+    standards:
+      - all
+  - name: Rollback, Status, and Utility Methods
+    claude_code_subagent: implementer
+    standards:
+      - all
+  - name: Error Handling, Validation & Complete Integration
+    claude_code_subagent: implementation-verifier
+    standards:
+      - all
