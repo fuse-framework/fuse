@@ -19,12 +19,21 @@ component {
 		// Scan for *Module.cfc files
 		var files = directoryList(modulesPath, false, "path", "*Module.cfc");
 
+		// Convert file system basePath to component path
+		var webroot = expandPath("/");
+		var componentBasePath = arguments.basePath;
+		if (left(componentBasePath, len(webroot)) == webroot) {
+			componentBasePath = right(componentBasePath, len(componentBasePath) - len(webroot));
+		}
+		componentBasePath = replace(componentBasePath, "/", ".", "all");
+		componentBasePath = replace(componentBasePath, "\", ".", "all");
+
 		for (var file in files) {
 			var fileName = getFileFromPath(file);
 			var moduleName = replaceNoCase(fileName, ".cfc", "");
 
 			// Build component path
-			var componentPath = arguments.basePath & ".modules." & moduleName;
+			var componentPath = componentBasePath & ".modules." & moduleName;
 
 			try {
 				// Instantiate module

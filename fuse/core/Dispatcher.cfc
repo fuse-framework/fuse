@@ -74,16 +74,30 @@ component {
 
 		// Phase 6: Invoke handler action
 		var result = invokeHandlerAction(handler, event.route.handler, event.params);
-		event.result = result;
 
-		// Phase 7: onAfterHandler
+		// Phase 7: Process handler return value
+		event.result = normalizeHandlerResult(result, event.route, event.request.method, event.params);
+
+		// Phase 8: onAfterHandler
 		event = variables.eventService.trigger("onAfterHandler", event);
 		if (event.abort) {
 			return buildAbortResponse(event);
 		}
 
-		// Return result for rendering pipeline (future)
-		return result;
+		// Phase 9: onBeforeRender
+		event = variables.eventService.trigger("onBeforeRender", event);
+		if (event.abort) {
+			return buildAbortResponse(event);
+		}
+
+		// Phase 10: onAfterRender
+		event = variables.eventService.trigger("onAfterRender", event);
+		if (event.abort) {
+			return buildAbortResponse(event);
+		}
+
+		// Return response with rendered body
+		return event.response;
 	}
 
 	// Private methods
@@ -252,6 +266,108 @@ component {
 			status: 200,
 			message: "Request aborted by interceptor"
 		};
+	}
+
+	/**
+	 * Normalize handler return value to standard result struct
+	 *
+	 * @result Handler return value (string, struct, or null)
+	 * @route Route struct with pattern and handler info
+	 * @method HTTP method
+	 * @return Normalized struct with view, locals, and layout keys
+	 */
+	private struct function normalizeHandlerResult(
+		any result,
+		required struct route,
+		required string method,
+		required struct params
+	) {
+		// String return: convert to {view: "path"} with params as locals
+		if (isSimpleValue(arguments.result) && len(trim(arguments.result))) {
+			return {
+				view: arguments.result,
+				locals: duplicate(arguments.params),
+				layout: "application"
+			};
+		}
+
+		// Struct return: use as-is with defaults
+		if (isStruct(arguments.result)) {
+			var normalized = duplicate(arguments.result);
+
+			// Set defaults if not provided
+			if (!structKeyExists(normalized, "locals")) {
+				normalized.locals = duplicate(arguments.params);
+			} else {
+				// Merge params into existing locals (locals take precedence)
+				for (var key in arguments.params) {
+					if (!structKeyExists(normalized.locals, key)) {
+						normalized.locals[key] = arguments.params[key];
+					}
+				}
+			}
+			if (!structKeyExists(normalized, "layout")) {
+				normalized.layout = "application";
+			}
+
+			// Derive view from route if not provided
+			if (!structKeyExists(normalized, "view")) {
+				normalized.view = deriveViewFromRoute(arguments.route);
+			}
+
+			return normalized;
+		}
+
+		// Null/void return: derive view from route with params as locals
+		return {
+			view: deriveViewFromRoute(arguments.route),
+			locals: duplicate(arguments.params),
+			layout: "application"
+		};
+	}
+
+	/**
+	 * Derive view path from route handler string
+	 * Example: "Users.show" -> "users/show"
+	 */
+	private string function deriveViewFromRoute(required struct route) {
+		var handler = arguments.route.handler;
+		var parts = listToArray(handler, ".");
+
+		if (arrayLen(parts) < 2) {
+			return "";
+		}
+
+		var handlerName = parts[1];
+		var actionName = parts[2];
+
+		// Convert handler name to snake_case path
+		// "BlogPosts" -> "blog_posts"
+		var viewPath = convertPascalToSnake(handlerName);
+
+		return viewPath & "/" & actionName;
+	}
+
+	/**
+	 * Convert PascalCase to snake_case
+	 * Example: "BlogPosts" -> "blog_posts"
+	 */
+	private string function convertPascalToSnake(required string str) {
+		var result = "";
+		var len = len(arguments.str);
+
+		for (var i = 1; i <= len; i++) {
+			var char = mid(arguments.str, i, 1);
+
+			// Add underscore before uppercase letters (except first)
+			if (i > 1 && reFind("[A-Z]", char)) {
+				result &= "_";
+			}
+
+			result &= lCase(char);
+		}
+
+		return result;
 	}
 
 }

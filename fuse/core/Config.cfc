@@ -92,9 +92,9 @@ component {
 			// For absolute paths, read and evaluate; for relative paths, use include
 			if (isAbsolutePath) {
 				var routesCode = fileRead(fullPath);
-				// Strip <cfscript> tags if present
-				var openTagPattern = "<cfscript[^>]*>";
-				var closeTagPattern = "</cfscript>";
+				// Strip cfscript tags if present
+				var openTagPattern = chr(60) & "cfscript" & chr(91) & chr(94) & chr(62) & chr(93) & chr(42) & chr(62);
+				var closeTagPattern = chr(60) & chr(47) & "cfscript" & chr(62);
 				routesCode = reReplaceNoCase(routesCode, "^" & openTagPattern, "");
 				routesCode = reReplaceNoCase(routesCode, closeTagPattern & "$", "");
 				evaluate(routesCode);

@@ -1,11 +1,8 @@
 <cfsetting enablecfoutputonly="true">
 <cfscript>
-	// Create TestBox instance
+	// Create TestBox instance for specific test
 	testbox = new testbox.system.TestBox(
-		directory = {
-			mapping = "tests",
-			recurse = true
-		}
+		bundles = "tests.core.BootstrapCacheViewIntegrationTest"
 	);
 
 	// Run tests and get results

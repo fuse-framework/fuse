@@ -1,0 +1,1 @@
+<cfoutput>#uppercase(text)#</cfoutput>

@@ -1,0 +1,21 @@
+task_groups:
+  - name: Cache Provider Foundation
+    claude_code_subagent: backend-developer
+    standards:
+      - all
+  - name: View Renderer Component
+    claude_code_subagent: backend-developer
+    standards:
+      - all
+  - name: Handler Return Processing & Event Hooks
+    claude_code_subagent: backend-developer
+    standards:
+      - all
+  - name: Bootstrap Integration & Configuration
+    claude_code_subagent: backend-developer
+    standards:
+      - all
+  - name: Test Review & Gap Analysis
+    claude_code_subagent: test-automator
+    standards:
+      - all
