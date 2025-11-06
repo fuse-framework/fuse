@@ -1,0 +1,26 @@
+/**
+ * Migration: {{migrationName}}
+ *
+ * Creates {{tableName}} table
+ */
+component extends="fuse.orm.Migration" {
+
+	/**
+	 * Run migration
+	 */
+	public function up() {
+		schema.create("{{tableName}}", function(table) {
+			table.id();
+			{{columns}}
+			{{timestamps}}
+		});
+	}
+
+	/**
+	 * Reverse migration
+	 */
+	public function down() {
+		schema.drop("{{tableName}}");
+	}
+
+}

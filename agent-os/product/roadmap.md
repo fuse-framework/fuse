@@ -22,7 +22,7 @@
 
 11. [x] Test Helpers & Integration — Model factories (make/create methods), handler testing helpers for request/response simulation, integration test support, test database setup/teardown automation `S`
 
-12. [ ] CLI Generators — FuseCLI entry point for lucli integration, NewCommand for app scaffolding, GenerateCommand for code generation (handler/model/migration/module), template system for code generation with variable interpolation `M`
+12. [x] CLI Generators — NewCommand for app scaffolding (complete directory structure, Application.cfc, config files, .gitignore, box.json), GenerateCommand dispatcher for code generation, ModelGenerator with attribute parsing and auto-migration, HandlerGenerator for RESTful/API handlers with namespace support, MigrationGenerator with pattern detection (Create/Add/Remove), template system with {{variable}} interpolation and config/templates/ override support, support utilities (NamingConventions, AttributeParser, TemplateEngine, FileGenerator), comprehensive test coverage (23 unit tests + 10 integration tests). See [CLI Usage Guide](../specs/2025-11-06-cli-generators/CLI_USAGE.md) and [Template Customization Guide](../specs/2025-11-06-cli-generators/TEMPLATE_CUSTOMIZATION.md) `M`
 
 13. [ ] CLI Database & Dev Tools — MigrateCommand for running migrations, RollbackCommand for migration rollback, SeedCommand for data seeding, RoutesCommand to list all routes, ServeCommand for dev server, TestCommand to run test suite `S`
 

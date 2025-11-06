@@ -1,0 +1,25 @@
+task_groups:
+  - name: Support Utilities Foundation
+    claude_code_subagent: implementer
+    standards:
+      - all
+  - name: Template Files
+    claude_code_subagent: implementer
+    standards:
+      - all
+  - name: Core Generators
+    claude_code_subagent: implementer
+    standards:
+      - all
+  - name: Generate Command Dispatcher
+    claude_code_subagent: implementer
+    standards:
+      - all
+  - name: NewCommand Application Scaffolding
+    claude_code_subagent: implementer
+    standards:
+      - all
+  - name: Integration Testing & Documentation
+    claude_code_subagent: implementation-verifier
+    standards:
+      - all

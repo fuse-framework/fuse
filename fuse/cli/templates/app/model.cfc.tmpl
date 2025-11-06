@@ -1,0 +1,20 @@
+/**
+ * {{componentName}} Model
+ *
+ * ActiveRecord model for {{tableName}} table
+ */
+component extends="fuse.orm.ActiveRecord" {
+
+	public function init(required string datasource) {
+		super.init(arguments.datasource);
+
+		// Define relationships
+		{{relationships}}
+
+		// Define validations
+		{{validations}}
+
+		return this;
+	}
+
+}

@@ -1,0 +1,71 @@
+# {{appName}}
+
+A Fuse Framework application.
+
+## Quick Start
+
+### 1. Configure Database
+
+Edit `config/database.cfc` with your database credentials.
+
+### 2. Run Migrations
+
+```bash
+lucli migrate
+```
+
+### 3. Start Development Server
+
+```bash
+lucli server start
+```
+
+Your application will be available at `http://localhost:8080`
+
+## Running Tests
+
+```bash
+lucli test
+```
+
+## Project Structure
+
+```
+{{appName}}/
+├── app/
+│   ├── models/       # ActiveRecord models
+│   ├── handlers/     # Request handlers (controllers)
+│   └── views/        # View templates
+├── config/
+│   ├── routes.cfc    # Route definitions
+│   └── database.cfc  # Database configuration
+├── database/
+│   ├── migrations/   # Database migrations
+│   └── seeds/        # Seed data
+├── tests/            # Test files
+└── public/           # Static assets (CSS, JS, images)
+```
+
+## Documentation
+
+- [Fuse Framework Documentation](https://fuse.framework/docs)
+- [Routing Guide](https://fuse.framework/docs/routing)
+- [ActiveRecord Guide](https://fuse.framework/docs/activerecord)
+- [Migrations Guide](https://fuse.framework/docs/migrations)
+
+## Generating Code
+
+```bash
+# Generate a model with migration
+lucli generate model User name:string email:string:unique
+
+# Generate a handler
+lucli generate handler Users
+
+# Generate a migration
+lucli generate migration AddAgeToUsers age:integer
+```
+
+## License
+
+Copyright (c) {{year}} Your Name

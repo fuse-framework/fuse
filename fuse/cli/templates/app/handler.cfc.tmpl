@@ -1,0 +1,102 @@
+/**
+ * {{handlerName}} Handler
+ *
+ * RESTful CRUD actions for {{handlerName}} resource
+ */
+component {
+
+	/**
+	 * Constructor with optional dependency injection
+	 */
+	public function init() {
+		// Initialize any required services here
+		return this;
+	}
+
+	/**
+	 * List all {{handlerName}} (GET /{{namespace}})
+	 *
+	 * @return Struct response
+	 */
+	public struct function index() {
+		return {
+			success: true,
+			action: "index",
+			data: []
+		};
+	}
+
+	/**
+	 * Show single {{handlerName}} (GET /{{namespace}}/:id)
+	 *
+	 * @id Resource ID from route param
+	 * @return Struct response
+	 */
+	public struct function show(required string id) {
+		return {
+			success: true,
+			action: "show",
+			id: arguments.id
+		};
+	}
+
+	/**
+	 * Show new {{handlerName}} form (GET /{{namespace}}/new)
+	 *
+	 * @return String view name
+	 */
+	public string function new() {
+		return "{{namespace}}/new";
+	}
+
+	/**
+	 * Create new {{handlerName}} (POST /{{namespace}})
+	 *
+	 * @return Struct response
+	 */
+	public struct function create() {
+		return {
+			success: true,
+			action: "create"
+		};
+	}
+
+	/**
+	 * Show edit {{handlerName}} form (GET /{{namespace}}/:id/edit)
+	 *
+	 * @id Resource ID from route param
+	 * @return String view name
+	 */
+	public string function edit(required string id) {
+		return "{{namespace}}/edit";
+	}
+
+	/**
+	 * Update {{handlerName}} (PUT/PATCH /{{namespace}}/:id)
+	 *
+	 * @id Resource ID from route param
+	 * @return Struct response
+	 */
+	public struct function update(required string id) {
+		return {
+			success: true,
+			action: "update",
+			id: arguments.id
+		};
+	}
+
+	/**
+	 * Delete {{handlerName}} (DELETE /{{namespace}}/:id)
+	 *
+	 * @id Resource ID from route param
+	 * @return Struct response
+	 */
+	public struct function destroy(required string id) {
+		return {
+			success: true,
+			action: "destroy",
+			id: arguments.id
+		};
+	}
+
+}

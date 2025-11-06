@@ -1,0 +1,25 @@
+/**
+ * Migration: {{migrationName}}
+ *
+ * Modifies {{tableName}} table
+ */
+component extends="fuse.orm.Migration" {
+
+	/**
+	 * Run migration
+	 */
+	public function up() {
+		schema.table("{{tableName}}", function(table) {
+			{{columns}}
+		});
+	}
+
+	/**
+	 * Reverse migration
+	 */
+	public function down() {
+		// Note: Column dropping not implemented in current spec
+		// In production, you would drop the columns here
+	}
+
+}

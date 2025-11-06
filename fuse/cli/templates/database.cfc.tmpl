@@ -1,0 +1,55 @@
+/**
+ * Database Configuration
+ *
+ * Define datasource settings for each environment
+ */
+component {
+
+	public struct function getConfig() {
+		return {
+			"development": {
+				"type": "{{databaseType}}",
+				"name": "{{datasourceName}}",
+				"host": "localhost",
+				"port": getDefaultPort("{{databaseType}}"),
+				"database": "{{datasourceName}}_dev",
+				"username": "root",
+				"password": ""
+			},
+			"test": {
+				"type": "{{databaseType}}",
+				"name": "{{datasourceName}}_test",
+				"host": "localhost",
+				"port": getDefaultPort("{{databaseType}}"),
+				"database": "{{datasourceName}}_test",
+				"username": "root",
+				"password": ""
+			},
+			"production": {
+				"type": "{{databaseType}}",
+				"name": "{{datasourceName}}",
+				"host": server.system.environment.DB_HOST ?: "localhost",
+				"port": server.system.environment.DB_PORT ?: getDefaultPort("{{databaseType}}"),
+				"database": server.system.environment.DB_NAME ?: "{{datasourceName}}",
+				"username": server.system.environment.DB_USER ?: "",
+				"password": server.system.environment.DB_PASS ?: ""
+			}
+		};
+	}
+
+	private numeric function getDefaultPort(required string type) {
+		switch (arguments.type) {
+			case "mysql":
+				return 3306;
+			case "postgresql":
+				return 5432;
+			case "sqlserver":
+				return 1433;
+			case "h2":
+				return 9092;
+			default:
+				return 3306;
+		}
+	}
+
+}
