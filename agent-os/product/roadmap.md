@@ -6,7 +6,7 @@
 
 3. [x] Cache & View Rendering — Pluggable cache manager with ICacheProvider interface, RAM cache provider implementation, view renderer with layout wrapping, helper method system for views `S`
 
-4. [ ] Query Builder Foundation — Two-layer query builder (QueryBuilder for raw SQL, ModelBuilder for ORM features), hash-based where() with operator structs ({gte:, like:, in:}), orderBy/limit/offset, raw SQL support (whereRaw, selectRaw) `L`
+4. [x] Query Builder Foundation — Two-layer query builder (QueryBuilder for raw SQL, ModelBuilder for ORM features), hash-based where() with operator structs ({gte:, like:, in:}), orderBy/limit/offset, raw SQL support (whereRaw, selectRaw) `L`
 
 5. [ ] ActiveRecord Base & CRUD — Model base class with static query methods (where, find, all), instance methods (save, update, delete), attribute handling with dirty tracking, table name conventions, primary key handling `L`
 
