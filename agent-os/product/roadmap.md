@@ -16,7 +16,7 @@
 
 8. [x] Smart Eager Loading — includes() implementation with automatic N+1 prevention, smart strategy selection (JOIN vs separate queries), nested eager loading support, manual strategy override (joins, preload), result hydration for eager loaded relationships `L`
 
-9. [ ] Validations & Lifecycle — Validator component with validates() DSL in models, built-in validators (required/email/unique/length/format), custom validator support, validation error collection, lifecycle callbacks (beforeSave/afterSave/beforeCreate/afterCreate/beforeDelete/afterDelete) with registration system `M`
+9. [x] Validations & Lifecycle — Validator component with validates() DSL in models, built-in validators (required/email/unique/length/format), custom validator support, validation error collection, lifecycle callbacks (beforeSave/afterSave/beforeCreate/afterCreate/beforeDelete/afterDelete) with registration system `M`
 
 10. [ ] Test Framework Foundation — TestCase base class with setup/teardown, test runner with discovery and execution, Assertions component with common assert methods, test reporting to console, database transaction rollback between tests `M`
 

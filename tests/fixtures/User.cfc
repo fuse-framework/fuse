@@ -22,4 +22,15 @@ component extends="fuse.orm.ActiveRecord" {
 	// Uses default conventions:
 	// - this.tableName = "users" (auto-generated)
 	// - this.primaryKey = "id" (auto-generated)
+
+	/**
+	 * Helper method for tests to set variables scope values
+	 * Allows tests to inject validation configs and state
+	 *
+	 * @param key Variable name to set
+	 * @param value Value to set
+	 */
+	public void function setVariablesScope(required string key, required any value) {
+		variables[arguments.key] = arguments.value;
+	}
 }

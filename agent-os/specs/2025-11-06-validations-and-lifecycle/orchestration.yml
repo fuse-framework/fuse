@@ -1,0 +1,21 @@
+task_groups:
+  - name: Validator Component
+    claude_code_subagent: implementer
+    standards:
+      - all
+  - name: CallbackManager Component
+    claude_code_subagent: implementer
+    standards:
+      - all
+  - name: ActiveRecord Validation & Callback Registration
+    claude_code_subagent: implementer
+    standards:
+      - all
+  - name: Save/Update/Delete Integration & Breaking Changes
+    claude_code_subagent: implementer
+    standards:
+      - all
+  - name: Test Review & Gap Analysis
+    claude_code_subagent: implementation-verifier
+    standards:
+      - all

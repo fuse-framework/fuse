@@ -23,9 +23,9 @@
  *     var user = new User(datasource);
  *     user.name = "John Doe";
  *     user.email = "john@example.com";
- *     user.save();
+ *     if (user.save()) { // success }
  *
- *     user.update({name: "Jane Doe"});
+ *     if (user.update({name: "Jane Doe"})) { // success }
  *     user.delete();
  *     user.reload();
  *
@@ -40,6 +40,27 @@
  *         }
  *     }
  *     var posts = user.posts().where({published: true}).get();
+ *
+ * Validations:
+ *     component extends="fuse.orm.ActiveRecord" {
+ *         public function init(datasource) {
+ *             super.init(datasource);
+ *             this.validates("email", {required: true, email: true});
+ *             this.validates("name", {required: true, length: {min: 3}});
+ *             return this;
+ *         }
+ *     }
+ *     if (user.isValid()) { user.save(); }
+ *
+ * Callbacks:
+ *     component extends="fuse.orm.ActiveRecord" {
+ *         public function init(datasource) {
+ *             super.init(datasource);
+ *             this.beforeSave("updateTimestamp");
+ *             this.afterSave("logEvent");
+ *             return this;
+ *         }
+ *     }
  *
  * Conventions:
  * - Table name: pluralize component name with 's' (User -> users, Post -> posts)
@@ -87,6 +108,15 @@ component extends="ModelBuilder" {
 
 		// Initialize eager loaded relationships tracking
 		variables.loadedRelationships = {};
+
+		// Initialize validation storage
+		variables.validations = {};
+
+		// Initialize callback manager
+		variables.callbackManager = new fuse.orm.CallbackManager();
+
+		// Initialize errors storage
+		variables.errors = {};
 
 		// Detect timestamp columns at initialization
 		detectTimestampColumns();
@@ -208,6 +238,171 @@ component extends="ModelBuilder" {
 		};
 
 		return this;
+	}
+
+	/**
+	 * Register validations for a field via DSL
+	 *
+	 * @param fieldName Name of the field to validate
+	 * @param validators Struct of validator definitions {required: true, email: true, length: {min: 5}}
+	 * @return void
+	 *
+	 * @example this.validates("email", {required: true, email: true})
+	 * @example this.validates("name", {required: true, length: {min: 3, max: 50}})
+	 */
+	public void function validates(required string fieldName, required struct validators) {
+		// Initialize field validation array if not exists
+		if (!structKeyExists(variables.validations, arguments.fieldName)) {
+			variables.validations[arguments.fieldName] = [];
+		}
+
+		// Parse validators struct and convert to array of validator configs
+		for (var validatorType in arguments.validators) {
+			var validatorOptions = arguments.validators[validatorType];
+
+			// Build validator config
+			var config = {
+				type: validatorType,
+				options: {}
+			};
+
+			// Store options based on validator type
+			if (isStruct(validatorOptions)) {
+				config.options = validatorOptions;
+			} else if (isSimpleValue(validatorOptions) || isClosure(validatorOptions) || isCustomFunction(validatorOptions)) {
+				// For validators like {required: true} or {custom: "methodName"} or {custom: closure}
+				config.options[validatorType] = validatorOptions;
+			}
+
+			// Append to field's validation array
+			arrayAppend(variables.validations[arguments.fieldName], config);
+		}
+	}
+
+	/**
+	 * Register beforeSave callback
+	 *
+	 * @param methodName Name of method to invoke before save
+	 * @return void
+	 *
+	 * @example this.beforeSave("updateTimestamp")
+	 */
+	public void function beforeSave(required string methodName) {
+		variables.callbackManager.registerCallback("beforeSave", arguments.methodName);
+	}
+
+	/**
+	 * Register afterSave callback
+	 *
+	 * @param methodName Name of method to invoke after save
+	 * @return void
+	 *
+	 * @example this.afterSave("logEvent")
+	 */
+	public void function afterSave(required string methodName) {
+		variables.callbackManager.registerCallback("afterSave", arguments.methodName);
+	}
+
+	/**
+	 * Register beforeCreate callback
+	 *
+	 * @param methodName Name of method to invoke before create
+	 * @return void
+	 *
+	 * @example this.beforeCreate("setDefaults")
+	 */
+	public void function beforeCreate(required string methodName) {
+		variables.callbackManager.registerCallback("beforeCreate", arguments.methodName);
+	}
+
+	/**
+	 * Register afterCreate callback
+	 *
+	 * @param methodName Name of method to invoke after create
+	 * @return void
+	 *
+	 * @example this.afterCreate("sendWelcomeEmail")
+	 */
+	public void function afterCreate(required string methodName) {
+		variables.callbackManager.registerCallback("afterCreate", arguments.methodName);
+	}
+
+	/**
+	 * Register beforeDelete callback
+	 *
+	 * @param methodName Name of method to invoke before delete
+	 * @return void
+	 *
+	 * @example this.beforeDelete("archiveData")
+	 */
+	public void function beforeDelete(required string methodName) {
+		variables.callbackManager.registerCallback("beforeDelete", arguments.methodName);
+	}
+
+	/**
+	 * Register afterDelete callback
+	 *
+	 * @param methodName Name of method to invoke after delete
+	 * @return void
+	 *
+	 * @example this.afterDelete("cleanupCache")
+	 */
+	public void function afterDelete(required string methodName) {
+		variables.callbackManager.registerCallback("afterDelete", arguments.methodName);
+	}
+
+	/**
+	 * Check if model has validation errors
+	 *
+	 * @return Boolean true if errors exist, false otherwise
+	 *
+	 * @example if (user.hasErrors()) { // handle errors }
+	 */
+	public boolean function hasErrors() {
+		return structCount(variables.errors) > 0;
+	}
+
+	/**
+	 * Get validation errors
+	 *
+	 * @param fieldName Optional field name to get specific field errors
+	 * @return Struct of all errors or array of field-specific errors
+	 *
+	 * @example var errors = user.getErrors()
+	 * @example var emailErrors = user.getErrors("email")
+	 */
+	public function getErrors(string fieldName = "") {
+		if (len(trim(arguments.fieldName))) {
+			// Return field-specific errors or empty array
+			if (structKeyExists(variables.errors, arguments.fieldName)) {
+				return variables.errors[arguments.fieldName];
+			}
+			return [];
+		}
+
+		// Return complete errors struct
+		return variables.errors;
+	}
+
+	/**
+	 * Manually trigger validation without persisting
+	 *
+	 * @return Boolean true if valid, false if errors exist
+	 *
+	 * @example if (!user.isValid()) { // handle validation errors }
+	 */
+	public boolean function isValid() {
+		// Clear previous errors
+		variables.errors = {};
+
+		// Instantiate validator
+		var validator = new fuse.orm.Validator();
+
+		// Execute validation
+		variables.errors = validator.validate(this);
+
+		// Return boolean result
+		return structIsEmpty(variables.errors);
 	}
 
 	/**
@@ -480,50 +675,83 @@ component extends="ModelBuilder" {
 
 	/**
 	 * Save model instance to database
-	 * Detects INSERT vs UPDATE based on isPersisted flag and primary key value
+	 * Integrates validation and lifecycle callbacks
 	 *
-	 * @return Model instance for chaining
+	 * @return Boolean true on success, false on validation failure or callback halt
 	 */
-	public function save() {
+	public boolean function save() {
+		// Run validation first
+		if (!this.isValid()) {
+			return false;
+		}
+
 		// Detect INSERT vs UPDATE
 		var isInsert = !variables.isPersisted || !structKeyExists(variables.attributes, variables.primaryKey);
 
 		if (isInsert) {
-			// INSERT path
+			// INSERT path: beforeCreate -> beforeSave -> INSERT -> afterSave -> afterCreate
+
+			// Execute beforeCreate callbacks
+			if (!variables.callbackManager.executeCallbacks(this, "beforeCreate")) {
+				return false;
+			}
+
+			// Execute beforeSave callbacks
+			if (!variables.callbackManager.executeCallbacks(this, "beforeSave")) {
+				return false;
+			}
+
+			// Perform INSERT
 			performInsert();
+
+			// Execute afterSave callbacks
+			variables.callbackManager.executeCallbacks(this, "afterSave");
+
+			// Execute afterCreate callbacks
+			variables.callbackManager.executeCallbacks(this, "afterCreate");
+
 		} else {
-			// UPDATE path
+			// UPDATE path: beforeSave -> UPDATE -> afterSave
+
+			// Execute beforeSave callbacks
+			if (!variables.callbackManager.executeCallbacks(this, "beforeSave")) {
+				return false;
+			}
+
+			// Perform UPDATE
 			performUpdate();
+
+			// Execute afterSave callbacks
+			variables.callbackManager.executeCallbacks(this, "afterSave");
 		}
 
 		// Reset dirty tracking
 		variables.original = duplicate(variables.attributes);
 
-		return this;
+		return true;
 	}
 
 	/**
 	 * Update model instance with changes and save
 	 *
 	 * @param changes Struct of attribute changes
-	 * @return Model instance for chaining
+	 * @return Boolean true on success, false on validation failure or callback halt
 	 */
-	public function update(required struct changes) {
+	public boolean function update(required struct changes) {
 		// Merge changes into attributes
 		for (var key in arguments.changes) {
 			variables.attributes[key] = arguments.changes[key];
 		}
 
-		// Save to persist changes
-		this.save();
-
-		return this;
+		// Save to persist changes (returns boolean)
+		return this.save();
 	}
 
 	/**
 	 * Delete model instance from database
+	 * Integrates lifecycle callbacks
 	 *
-	 * @return Boolean true if deleted, false if no rows affected
+	 * @return Boolean true if deleted, false if halted by callback or no rows affected
 	 */
 	public boolean function delete() {
 		// Check if record is persisted and has primary key
@@ -533,6 +761,11 @@ component extends="ModelBuilder" {
 				message = "Cannot delete record that doesn't exist in database",
 				detail = "Record has not been saved or has no primary key value"
 			);
+		}
+
+		// Execute beforeDelete callbacks
+		if (!variables.callbackManager.executeCallbacks(this, "beforeDelete")) {
+			return false;
 		}
 
 		try {
@@ -546,6 +779,9 @@ component extends="ModelBuilder" {
 
 			// Mark as detached
 			variables.isPersisted = false;
+
+			// Execute afterDelete callbacks
+			variables.callbackManager.executeCallbacks(this, "afterDelete");
 
 			// Return true if rows affected
 			return (structKeyExists(result, "recordCount") && result.recordCount > 0);
