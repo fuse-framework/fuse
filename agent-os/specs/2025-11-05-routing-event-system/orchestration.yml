@@ -1,0 +1,41 @@
+task_groups:
+  - name: Route Pattern Matching Engine
+    claude_code_subagent: backend-developer
+    standards:
+      - all
+  - name: Router DSL and Registration
+    claude_code_subagent: backend-developer
+    standards:
+      - all
+  - name: RESTful Resource Routes
+    claude_code_subagent: backend-developer
+    standards:
+      - all
+  - name: Named Routes and URL Generation
+    claude_code_subagent: backend-developer
+    standards:
+      - all
+  - name: Event Service Architecture
+    claude_code_subagent: backend-developer
+    standards:
+      - all
+  - name: Dispatcher and Request Lifecycle
+    claude_code_subagent: backend-developer
+    standards:
+      - all
+  - name: Bootstrap Integration
+    claude_code_subagent: backend-developer
+    standards:
+      - all
+  - name: Configuration Loading
+    claude_code_subagent: backend-developer
+    standards:
+      - all
+  - name: Handler Conventions & Test Fixtures
+    claude_code_subagent: backend-developer
+    standards:
+      - all
+  - name: Integration Testing & Documentation
+    claude_code_subagent: test-automator
+    standards:
+      - all

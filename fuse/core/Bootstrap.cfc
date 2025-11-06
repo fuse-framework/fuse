@@ -56,6 +56,26 @@ component {
 		// Bind config to container
 		configLoader.bindToContainer(container, finalConfig);
 
+		// Register routing and event services
+		container.singleton("router", function(c) {
+			return new fuse.core.Router();
+		});
+
+		container.singleton("eventService", function(c) {
+			return new fuse.core.EventService();
+		});
+
+		container.bind("dispatcher", function(c) {
+			return new fuse.core.Dispatcher(
+				c.resolve("router"),
+				c,
+				c.resolve("eventService")
+			);
+		});
+
+		// Load routes from /config/routes.cfm
+		configLoader.loadRoutes(container.resolve("router"));
+
 		// Initialize modules (two-phase: register then boot)
 		moduleRegistry.initialize(allModules, container);
 

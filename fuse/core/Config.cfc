@@ -61,6 +61,61 @@ component {
 	}
 
 	/**
+	 * Load routes from routes.cfm file
+	 *
+	 * @router Router instance to pass to routes.cfm scope
+	 * @configPath Path to routes.cfm or directory containing it (default: /config)
+	 */
+	public function loadRoutes(required router, string configPath = "/config") {
+		var routesFilePath = arguments.configPath;
+
+		// If configPath is a directory, append routes.cfm
+		if (right(routesFilePath, 4) != ".cfm") {
+			routesFilePath = routesFilePath & "/routes.cfm";
+		}
+
+		// Determine if path is already absolute (starts with / on Unix or C:\ on Windows)
+		var isAbsolutePath = left(routesFilePath, 1) == "/" || (len(routesFilePath) > 2 && mid(routesFilePath, 2, 2) == ":\");
+
+		// If absolute path, use as-is; otherwise expand it
+		var fullPath = isAbsolutePath ? routesFilePath : expandPath(routesFilePath);
+
+		// Skip if routes.cfm doesn't exist (optional file)
+		if (!fileExists(fullPath)) {
+			return;
+		}
+
+		try {
+			// Include routes.cfm with router in scope
+			variables.router = arguments.router;
+
+			// For absolute paths, read and evaluate; for relative paths, use include
+			if (isAbsolutePath) {
+				var routesCode = fileRead(fullPath);
+				// Strip <cfscript> tags if present
+				var openTagPattern = "<cfscript[^>]*>";
+				var closeTagPattern = "</cfscript>";
+				routesCode = reReplaceNoCase(routesCode, "^" & openTagPattern, "");
+				routesCode = reReplaceNoCase(routesCode, closeTagPattern & "$", "");
+				evaluate(routesCode);
+			} else {
+				include template="#routesFilePath#";
+			}
+		} catch (any e) {
+			throw(
+				type = "RouteConfigurationException",
+				message = "Error loading routes configuration",
+				detail = "Failed to load routes from #fullPath#: #e.message#. Check syntax in routes.cfm file.",
+				extendedInfo = serializeJSON({
+					originalError: e.message,
+					originalType: e.type,
+					filePath: fullPath
+				})
+			);
+		}
+	}
+
+	/**
 	 * Bind configuration to DI container as singleton
 	 *
 	 * @container DI container instance
