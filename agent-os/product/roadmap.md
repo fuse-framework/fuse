@@ -1,6 +1,6 @@
 # Fuse Framework Roadmap
 
-1. [ ] Bootstrap Core & DI Container — Application.cfc initialization with thread-safe locking, module loader with dependency resolution, DI container with constructor/property injection and singleton caching, configuration loading with environment overrides `M`
+1. [x] Bootstrap Core & DI Container — Application.cfc initialization with thread-safe locking, module loader with dependency resolution, DI container with constructor/property injection and singleton caching, configuration loading with environment overrides `M`
 
 2. [ ] Routing & Event System — Route registration with pattern matching (static/params/wildcards), RESTful resource routes, named route generation, event service with interceptor points (onBeforeRequest, onAfterRouting, onBeforeHandler, onAfterHandler, onBeforeRender, onAfterRender) `M`
 
