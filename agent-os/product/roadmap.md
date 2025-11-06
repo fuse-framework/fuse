@@ -18,7 +18,7 @@
 
 9. [x] Validations & Lifecycle — Validator component with validates() DSL in models, built-in validators (required/email/unique/length/format), custom validator support, validation error collection, lifecycle callbacks (beforeSave/afterSave/beforeCreate/afterCreate/beforeDelete/afterDelete) with registration system `M`
 
-10. [ ] Test Framework Foundation — TestCase base class with setup/teardown, test runner with discovery and execution, Assertions component with common assert methods, test reporting to console, database transaction rollback between tests `M`
+10. [x] Test Framework Foundation — TestCase base class with setup/teardown, test runner with discovery and execution, Assertions component with common assert methods, test reporting to console, database transaction rollback between tests `M`
 
 11. [ ] Test Helpers & Integration — Model factories (make/create methods), handler testing helpers for request/response simulation, integration test support, test database setup/teardown automation `S`
 

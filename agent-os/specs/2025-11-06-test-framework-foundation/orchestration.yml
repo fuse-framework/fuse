@@ -1,0 +1,25 @@
+task_groups:
+  - name: Task Group 1 - Assertion Library
+    claude_code_subagent: backend-developer
+    standards:
+      - all
+  - name: Task Group 2 - TestCase Base Class
+    claude_code_subagent: backend-developer
+    standards:
+      - all
+  - name: Task Group 3 - Test Discovery
+    claude_code_subagent: backend-developer
+    standards:
+      - all
+  - name: Task Group 4 - Test Runner with Transaction Management
+    claude_code_subagent: backend-developer
+    standards:
+      - all
+  - name: Task Group 5 - Console Reporter
+    claude_code_subagent: backend-developer
+    standards:
+      - all
+  - name: Task Group 6 - End-to-End Integration
+    claude_code_subagent: fullstack-developer
+    standards:
+      - all
