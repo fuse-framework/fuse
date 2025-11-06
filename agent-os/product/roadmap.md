@@ -24,7 +24,7 @@
 
 12. [x] CLI Generators — NewCommand for app scaffolding (complete directory structure, Application.cfc, config files, .gitignore, box.json), GenerateCommand dispatcher for code generation, ModelGenerator with attribute parsing and auto-migration, HandlerGenerator for RESTful/API handlers with namespace support, MigrationGenerator with pattern detection (Create/Add/Remove), template system with {{variable}} interpolation and config/templates/ override support, support utilities (NamingConventions, AttributeParser, TemplateEngine, FileGenerator), comprehensive test coverage (23 unit tests + 10 integration tests). See [CLI Usage Guide](../specs/2025-11-06-cli-generators/CLI_USAGE.md) and [Template Customization Guide](../specs/2025-11-06-cli-generators/TEMPLATE_CUSTOMIZATION.md) `M`
 
-13. [ ] CLI Database & Dev Tools — MigrateCommand for running migrations, RollbackCommand for migration rollback, SeedCommand for data seeding, RoutesCommand to list all routes, ServeCommand for dev server, TestCommand to run test suite `S`
+13. [x] CLI Database & Dev Tools — MigrateCommand for running migrations, RollbackCommand for migration rollback, SeedCommand for data seeding, RoutesCommand to list all routes, ServeCommand for dev server, TestCommand to run test suite, DatabaseConnection utility for datasource resolution, Seeder base class for programmable seeders, comprehensive test coverage (51 tests). See README CLI Database & Dev Tools section `S`
 
 14. [ ] Documentation & Examples — Getting started guide, architecture overview, routing/ORM/testing guides, module development guide, API reference, configuration reference, CLI reference, tutorial blog application `L`
 

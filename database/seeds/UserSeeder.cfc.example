@@ -1,0 +1,61 @@
+/**
+ * UserSeeder - Example seeder for users table
+ *
+ * This is an example showing idempotent seeder patterns.
+ * Rename to UserSeeder.cfc and customize for your needs.
+ */
+component extends="fuse.orm.Seeder" {
+
+	/**
+	 * Run user seeding
+	 *
+	 * Demonstrates idempotent pattern - checks before inserting
+	 */
+	public function run() {
+		// Check if admin user already exists
+		var adminExists = queryExecute("
+			SELECT COUNT(*) as total
+			FROM users
+			WHERE email = ?
+		", [
+			{value: "admin@example.com", cfsqltype: "varchar"}
+		], {
+			datasource: variables.datasource
+		}).total;
+
+		// Only insert if admin doesn't exist
+		if (adminExists == 0) {
+			queryExecute("
+				INSERT INTO users (name, email, created_at, updated_at)
+				VALUES (?, ?, NOW(), NOW())
+			", [
+				{value: "Admin User", cfsqltype: "varchar"},
+				{value: "admin@example.com", cfsqltype: "varchar"}
+			], {
+				datasource: variables.datasource
+			});
+		}
+
+		// Seed more test users if needed
+		var userCount = queryExecute("
+			SELECT COUNT(*) as total FROM users
+		", [], {
+			datasource: variables.datasource
+		}).total;
+
+		if (userCount < 10) {
+			for (var i = userCount + 1; i <= 10; i++) {
+				queryExecute("
+					INSERT INTO users (name, email, created_at, updated_at)
+					VALUES (?, ?, NOW(), NOW())
+				", [
+					{value: "Test User " & i, cfsqltype: "varchar"},
+					{value: "user" & i & "@example.com", cfsqltype: "varchar"}
+				], {
+					datasource: variables.datasource
+				});
+			}
+		}
+	}
+
+}

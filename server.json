@@ -9,5 +9,8 @@
     "app":{
         "cfengine":"lucee"
     },
-    "debug=false":true
+    "debug=false":true,
+    "rewritesEnable=true":true,
+    "console=false":true,
+    "port=8888":true
 }

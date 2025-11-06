@@ -159,6 +159,15 @@ component {
 	}
 
 	/**
+	 * Get all registered routes
+	 *
+	 * @return Array of route structs
+	 */
+	public array function getRoutes() {
+		return variables.routes;
+	}
+
+	/**
 	 * Generate URL from named route with parameter replacement
 	 *
 	 * @name Route name

@@ -1,0 +1,21 @@
+task_groups:
+  - name: Foundation Components
+    claude_code_subagent: implementer
+    standards:
+      - all
+  - name: Database Commands
+    claude_code_subagent: implementer
+    standards:
+      - all
+  - name: Development Tool Commands
+    claude_code_subagent: implementer
+    standards:
+      - all
+  - name: Integration Testing
+    claude_code_subagent: implementation-verifier
+    standards:
+      - all
+  - name: Documentation
+    claude_code_subagent: technical-writer
+    standards:
+      - all

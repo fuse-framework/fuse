@@ -220,6 +220,276 @@ fuse/
 └── README.md
 ```
 
+## CLI Database & Dev Tools
+
+Fuse provides CLI commands for database management and development workflow.
+
+### Database Commands
+
+#### Migrate - Run Database Migrations
+
+Execute pending migrations:
+
+```bash
+lucli fuse.cli.commands.Migrate
+```
+
+Common options:
+
+```bash
+# Show migration status
+lucli fuse.cli.commands.Migrate --status
+
+# Reset all migrations (rollback everything)
+lucli fuse.cli.commands.Migrate --reset
+
+# Refresh migrations (reset + re-run)
+lucli fuse.cli.commands.Migrate --refresh
+
+# Use specific datasource
+lucli fuse.cli.commands.Migrate --datasource=mydb
+```
+
+Output example:
+
+```
+Running pending migrations...
+
+  Migrated: 20251106120000_CreateUsers.cfc
+  Migrated: 20251106120100_CreatePosts.cfc
+
+Migrations complete! (2 migrations)
+```
+
+Status output shows checkmarks for ran migrations:
+
+```
+Migration Status:
+
+  [✓] 20251106120000_CreateUsers.cfc
+  [✓] 20251106120100_CreatePosts.cfc
+  [ ] 20251106120200_AddEmailToUsers.cfc
+
+2 migrations run, 1 pending
+```
+
+#### Rollback - Rollback Migrations
+
+Rollback migrations:
+
+```bash
+# Rollback 1 migration (default)
+lucli fuse.cli.commands.Rollback
+
+# Rollback N migrations
+lucli fuse.cli.commands.Rollback --steps=3
+
+# Rollback all migrations
+lucli fuse.cli.commands.Rollback --all
+
+# Use specific datasource
+lucli fuse.cli.commands.Rollback --datasource=mydb
+```
+
+Output example:
+
+```
+Rolling back 1 migration...
+
+  Rolled back: 20251106120100_CreatePosts.cfc
+
+Rollback complete! (1 migration)
+```
+
+#### Seed - Populate Database
+
+Seed database with test/default data:
+
+```bash
+# Run DatabaseSeeder (default)
+lucli fuse.cli.commands.Seed
+
+# Run specific seeder
+lucli fuse.cli.commands.Seed --class=UserSeeder
+
+# Use specific datasource
+lucli fuse.cli.commands.Seed --datasource=mydb
+```
+
+Output example:
+
+```
+Seeding database...
+
+  Running DatabaseSeeder...
+  Running UserSeeder...
+  Running PostSeeder...
+
+Database seeded successfully!
+```
+
+**Seeder Best Practices:**
+
+Seeders should be idempotent (safe to run multiple times). Check before inserting:
+
+```cfml
+component extends="fuse.orm.Seeder" {
+    public function run() {
+        // Check if data exists first
+        var count = queryExecute("
+            SELECT COUNT(*) as total FROM users
+        ", [], {datasource: variables.datasource}).total;
+
+        if (count == 0) {
+            // Insert data
+            queryExecute("
+                INSERT INTO users (name, email)
+                VALUES ('Admin', 'admin@example.com')
+            ", [], {datasource: variables.datasource});
+        }
+    }
+}
+```
+
+Use `call()` to invoke other seeders:
+
+```cfml
+component extends="fuse.orm.Seeder" {
+    public function run() {
+        call("UserSeeder");
+        call("PostSeeder");
+    }
+}
+```
+
+**Datasource Resolution:**
+
+All database commands resolve datasource in this order:
+1. `--datasource` flag
+2. `application.datasource`
+3. "fuse" (default)
+
+### Development Commands
+
+#### Routes - Display Registered Routes
+
+Show all registered routes:
+
+```bash
+lucli fuse.cli.commands.Routes
+```
+
+Output displays ASCII table:
+
+```
++--------+------------------+------------------+------------------+
+| Method | URI              | Name             | Handler          |
++--------+------------------+------------------+------------------+
+| GET    | /users           | users_index      | Users.index      |
+| POST   | /users           | users_create     | Users.create     |
+| GET    | /users/new       | users_new        | Users.new        |
+| GET    | /users/:id       | users_show       | Users.show       |
+| GET    | /users/:id/edit  | users_edit       | Users.edit       |
+| PUT    | /users/:id       | users_update     | Users.update     |
+| PATCH  | /users/:id       |                  | Users.update     |
+| DELETE | /users/:id       | users_destroy    | Users.destroy    |
++--------+------------------+------------------+------------------+
+```
+
+Filter options:
+
+```bash
+# Filter by HTTP method
+lucli fuse.cli.commands.Routes --method=GET
+
+# Filter by route name (contains match)
+lucli fuse.cli.commands.Routes --name=users
+
+# Filter by handler (contains match)
+lucli fuse.cli.commands.Routes --handler=Users
+```
+
+#### Serve - Start Development Server
+
+Start local development server:
+
+```bash
+# Default: http://127.0.0.1:8080
+lucli fuse.cli.commands.Serve
+
+# Custom host and port
+lucli fuse.cli.commands.Serve --host=0.0.0.0 --port=3000
+```
+
+Output:
+
+```
+Starting Fuse development server...
+Server running at http://127.0.0.1:8080
+Press Ctrl+C to stop
+```
+
+#### Test - Run Test Suite
+
+Run tests with TestBox:
+
+```bash
+# Run all tests
+lucli fuse.cli.commands.Test
+
+# Run specific tests (filter by component name)
+lucli fuse.cli.commands.Test --filter=User
+
+# Run only unit tests
+lucli fuse.cli.commands.Test --type=unit
+
+# Run only integration tests
+lucli fuse.cli.commands.Test --type=integration
+
+# Verbose output (show each test)
+lucli fuse.cli.commands.Test --verbose
+
+# Use specific datasource for test transactions
+lucli fuse.cli.commands.Test --datasource=test_db
+```
+
+Default output (dots):
+
+```
+Running tests...
+
+....F..E............
+
+15 tests, 13 passed, 1 failure, 1 error (2.34s)
+
+FAILURES:
+
+  UserTest::testValidation
+    Expected: true
+    Actual: false
+
+ERRORS:
+
+  PostTest::testCreate
+    Division by zero error
+    /app/models/Post.cfc:45
+```
+
+Verbose output:
+
+```
+Running tests...
+
+  UserTest::testCreate ... PASS (0.045s)
+  UserTest::testUpdate ... PASS (0.038s)
+  UserTest::testValidation ... FAIL (0.012s)
+  PostTest::testCreate ... ERROR (0.002s)
+
+15 tests, 13 passed, 1 failure, 1 error (2.34s)
+
+[failure/error details...]
+```
+
 ## Roadmap
 
 - [x] #1: Bootstrap Core & DI Container

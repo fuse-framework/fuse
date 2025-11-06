@@ -1,0 +1,102 @@
+/**
+ * Users Handler
+ *
+ * RESTful CRUD actions for Users resource
+ */
+component {
+
+	/**
+	 * Constructor with optional dependency injection
+	 */
+	public function init() {
+		// Initialize any required services here
+		return this;
+	}
+
+	/**
+	 * List all Users (GET /)
+	 *
+	 * @return Struct response
+	 */
+	public struct function index() {
+		return {
+			success: true,
+			action: "index",
+			data: []
+		};
+	}
+
+	/**
+	 * Show single Users (GET //:id)
+	 *
+	 * @id Resource ID from route param
+	 * @return Struct response
+	 */
+	public struct function show(required string id) {
+		return {
+			success: true,
+			action: "show",
+			id: arguments.id
+		};
+	}
+
+	/**
+	 * Show new Users form (GET //new)
+	 *
+	 * @return String view name
+	 */
+	public string function new() {
+		return "/new";
+	}
+
+	/**
+	 * Create new Users (POST /)
+	 *
+	 * @return Struct response
+	 */
+	public struct function create() {
+		return {
+			success: true,
+			action: "create"
+		};
+	}
+
+	/**
+	 * Show edit Users form (GET //:id/edit)
+	 *
+	 * @id Resource ID from route param
+	 * @return String view name
+	 */
+	public string function edit(required string id) {
+		return "/edit";
+	}
+
+	/**
+	 * Update Users (PUT/PATCH //:id)
+	 *
+	 * @id Resource ID from route param
+	 * @return Struct response
+	 */
+	public struct function update(required string id) {
+		return {
+			success: true,
+			action: "update",
+			id: arguments.id
+		};
+	}
+
+	/**
+	 * Delete Users (DELETE //:id)
+	 *
+	 * @id Resource ID from route param
+	 * @return Struct response
+	 */
+	public struct function destroy(required string id) {
+		return {
+			success: true,
+			action: "destroy",
+			id: arguments.id
+		};
+	}
+
+}
