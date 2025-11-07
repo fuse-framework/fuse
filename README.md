@@ -1,6 +1,20 @@
 # Fuse Framework
 
-Modern CFML framework for Lucee 7 with Rails-inspired routing, DI container, and modular architecture.
+Modern CFML framework for Lucee 7 with Rails-inspired routing, ActiveRecord ORM, DI container, testing framework, and powerful CLI tools.
+
+---
+
+## 📚 Documentation
+
+**[Complete Documentation →](/docs)**
+
+- **[Getting Started](/docs/getting-started/quickstart.md)** - Build your first app in 5 minutes
+- **[Core Guides](/docs#core-guides)** - Learn routing, models, handlers, validations
+- **[Blog Tutorial](/docs/tutorials/blog-application.md)** - Step-by-step complete application
+- **[API Reference](/docs/reference/api-reference.md)** - Complete API documentation
+- **[CLI Reference](/docs/reference/cli-reference.md)** - lucli command reference
+
+---
 
 ## Features
 
@@ -494,12 +508,24 @@ Running tests...
 
 - [x] #1: Bootstrap Core & DI Container
 - [x] #2: Routing & Event System
+- [x] #5: Database Layer & ORM (ActiveRecord)
+- [x] #7: Form Validation (Model Validations)
+- [x] #8: CLI & Tooling (Generators, Migrations)
+- [x] #9: Validations & Lifecycle Hooks
+- [x] #10: Test Framework Foundation
+- [x] #11: Test Helpers & Integration
+- [x] #12: CLI Generators (Model, Handler, Migration)
+- [x] #13: CLI Database & Dev Tools (Migrate, Rollback, Seed, Routes, Test)
 - [ ] #3: View Layer & Rendering
 - [ ] #4: Middleware Chain
-- [ ] #5: Database Layer & ORM
 - [ ] #6: Session & Authentication
-- [ ] #7: Form Validation
-- [ ] #8: CLI & Tooling
+
+## Need Help?
+
+- **Documentation:** [/docs](/docs)
+- **Troubleshooting:** Check "Common Errors" sections in each guide
+- **Error Reference:** [fuse-planning/error-reference.md](/fuse-planning/error-reference.md)
+- **Issues:** Report bugs and request features on GitHub
 
 ## License
 

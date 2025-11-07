@@ -26,7 +26,7 @@
 
 13. [x] CLI Database & Dev Tools — MigrateCommand for running migrations, RollbackCommand for migration rollback, SeedCommand for data seeding, RoutesCommand to list all routes, ServeCommand for dev server, TestCommand to run test suite, DatabaseConnection utility for datasource resolution, Seeder base class for programmable seeders, comprehensive test coverage (51 tests). See README CLI Database & Dev Tools section `S`
 
-14. [ ] Documentation & Examples — Getting started guide, architecture overview, routing/ORM/testing guides, module development guide, API reference, configuration reference, CLI reference, tutorial blog application `L`
+14. [x] Documentation & Examples — Getting started guide, architecture overview, routing/ORM/testing guides, module development guide, API reference, configuration reference, CLI reference, tutorial blog application `L`
 
 15. [ ] Production Polish & Performance — Performance optimization pass (query caching, component lifecycle), enhanced error handling with framework-aware errors, logging system for requests/errors, production deployment checklist, migration guides from Wheels/FW/1/ColdBox `M`
 

@@ -1,0 +1,49 @@
+task_groups:
+  - name: Documentation Foundation
+    claude_code_subagent: technical-writer
+    standards:
+      - all
+  - name: Getting Started Section
+    claude_code_subagent: technical-writer
+    standards:
+      - all
+  - name: Core Guides (Part 1 - Foundation)
+    claude_code_subagent: technical-writer
+    standards:
+      - all
+  - name: Core Guides (Part 2 - Advanced ORM)
+    claude_code_subagent: technical-writer
+    standards:
+      - all
+  - name: Testing Guide
+    claude_code_subagent: technical-writer
+    standards:
+      - all
+  - name: Blog Tutorial
+    claude_code_subagent: technical-writer
+    standards:
+      - all
+  - name: CLI Reference
+    claude_code_subagent: technical-writer
+    standards:
+      - all
+  - name: API Reference
+    claude_code_subagent: technical-writer
+    standards:
+      - all
+  - name: Advanced Topics
+    claude_code_subagent: technical-writer
+    standards:
+      - all
+  - name: Migration Guides
+    claude_code_subagent: technical-writer
+    standards:
+      - all
+  - name: AI-Specific Enhancements
+    claude_code_subagent: technical-writer
+    standards:
+      - all
+  - name: Documentation Polish & Integration
+    claude_code_subagent: technical-writer
+    standards:
+      - all
